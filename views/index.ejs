@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        #chartContainer {
+            padding-top: 30px;
+            width: 100%;
+            height: 600px;
+        }
+        div.a{
+            font-size: 60px;
+            text-align: center;
+            color : white;
+        }
+        .hide { position:absolute; top:-1px; left:-1px; width:1px; height:1px; }
+    /* CSS for textarea styling */
+    .textarea-container {
+            display: flex;
+            flex-direction: column;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        #myTextarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            resize: vertical;
+            margin-bottom: 10px;
+        }
+
+        #myTextarea::placeholder {
+            color: #999;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-left : 70px;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    
+</style>
+    </style>
+</head>
+<body style="background-color: black;">
+    <div class="a">Arxiv Research Explorer</div>
+    <iframe name="hiddenFrame" class="hide"></iframe>
+    <br><br>
+    <form action="/" method="POST">
+        <label for="textInput">Enter text:</label>
+        <textarea id="textInput" placeholder="What are you researching?" rows="6" cols="155" name="textInput"></textarea>
+        <br>
+        <button class="btn" type="submit">Send</button>
+       
+    </form>
+    <div id="chartContainer"></div>
+    <script src="/js/lcjs.iife.js"></script>
+    <script src="/js/chart.js"></script>
+
+    
+
+</body>
+</html>
