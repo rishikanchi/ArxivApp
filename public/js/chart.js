@@ -42,9 +42,9 @@ fetch('/api/mydata') // Fetch data from server endpoint
     var clusters = Object.entries(data).slice(100000, Object.keys(data).length);
     
     
-    var chart;
+    // var chart;
 
-    const lc = lightningChart({
+    const chart = lightningChart({
       license: "0002-n3X9iO0Z5d9OhoPGWWdBxAQ6SdnSKwB0/bH5AezBWp6K2IHfmcHtrmGsuEfyKfMUywnFPEbJ/vz5wfxYNmTstcut-MEYCIQDBYzSNR+IpXP765q1bC8E4xWsWHfWS0CLLjh2DYiBi0wIhAOMmdh9c3bmnsXnk6b5Xd+ngHLhuM0pJSapgpHg21+Br",
       licenseInformation: {
           appTitle: "LightningChart JS Trial",
@@ -53,7 +53,7 @@ fetch('/api/mydata') // Fetch data from server endpoint
   }).ChartXY({
       container: 'chartContainer',
     }).setTitle('Web of Research')
-
+    
     chart.setBackgroundFillStyle(new SolidFill({ color: ColorRGBA(0, 0, 0, 0) })) // Transparent background
     chart.setBackgroundStrokeStyle(emptyLine)
 
