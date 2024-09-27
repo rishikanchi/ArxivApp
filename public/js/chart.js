@@ -2,26 +2,26 @@
 const { lightningChart, UIDraggingModes, RadialGradientFill, LinearGradientFill, IndividualPointFill, ColorRGBA, UIElementBuilders, SolidLine, SolidFill, transparentFill, emptyFill, AxisTickStrategies, emptyFillStyle, emptyLine, UIOrigins, Themes} = lcjs;
 
 const colorMap = {
-  "Astrophysics" : ColorRGBA(245, 66, 66),
-  "Condensed Material" : ColorRGBA(245, 111, 66),
-  "Computer Science" : ColorRGBA(245, 167, 66),
- "Economics" : ColorRGBA(227, 245, 66),
-  "Electrical Engineering and Systems Science" : ColorRGBA(182, 245, 66),
-  "General Relativity and Quantum Cosmology" : ColorRGBA(111, 245, 66),
-  "High Energy Physics - Experiment" : ColorRGBA(66, 245, 108),
-  "High Energy Physics - Lattice" : ColorRGBA(66, 245, 153),
-  "High Energy Physics - Phenomenology" : ColorRGBA(66, 245, 153),
-  "High Energy Physics - Theory" : ColorRGBA(66, 245, 200),
-  "Mathematics" : ColorRGBA(66, 227, 245),
-  "Mathematical Physics" : ColorRGBA(66, 164, 245),
-  "Nonlinear Sciences" : ColorRGBA(66, 90, 245),
-  "Nuclear Experiment" : ColorRGBA(123, 66, 245),
-  "Nuclear Theory" : ColorRGBA(185, 66, 245),
-  "Physics" : ColorRGBA(245, 66, 227),
-  "Quantitative Biology" : ColorRGBA(245, 66, 182),
-  "Quantitative Finance" : ColorRGBA(245, 66, 147),
-  "Quantum Physics" : ColorRGBA(245, 66, 114),
-  "Statistics" : ColorRGBA(245, 66, 93)
+  "Astrophysics": ColorRGBA(245, 100, 100),
+  "Condensed Material": ColorRGBA(245, 140, 100),
+  "Computer Science": ColorRGBA(245, 200, 100),
+  "Economics": ColorRGBA(230, 245, 100),
+  "Electrical Engineering and Systems Science": ColorRGBA(190, 245, 100),
+  "General Relativity and Quantum Cosmology": ColorRGBA(120, 245, 100),
+  "High Energy Physics - Experiment": ColorRGBA(100, 245, 130),
+  "High Energy Physics - Lattice": ColorRGBA(100, 245, 180),
+  "High Energy Physics - Phenomenology": ColorRGBA(100, 245, 180),
+  "High Energy Physics - Theory": ColorRGBA(100, 245, 220),
+  "Mathematics": ColorRGBA(100, 230, 245),
+  "Mathematical Physics": ColorRGBA(100, 170, 245),
+  "Nonlinear Sciences": ColorRGBA(100, 100, 245),
+  "Nuclear Experiment": ColorRGBA(130, 100, 245),
+  "Nuclear Theory": ColorRGBA(200, 100, 245),
+  "Physics": ColorRGBA(245, 100, 230),
+  "Quantitative Biology": ColorRGBA(245, 100, 200),
+  "Quantitative Finance": ColorRGBA(245, 100, 160),
+  "Quantum Physics": ColorRGBA(245, 100, 130),
+  "Statistics": ColorRGBA(245, 100, 110)
 };
 
 fetch('/api/mydata') // Fetch data from server endpoint
@@ -52,11 +52,12 @@ fetch('/api/mydata') // Fetch data from server endpoint
       },
   }).ChartXY({
       container: 'chartContainer',
+      theme: Themes.light
     }).setTitle('Web of Research')
     
-    chart.setBackgroundFillStyle(new SolidFill({ color: ColorRGBA(0, 0, 0, 0) })) // Transparent background
+    chart.setBackgroundFillStyle(new SolidFill({ color: ColorRGBA(255, 255, 255, 255) }))
     chart.setBackgroundStrokeStyle(emptyLine)
-
+    
     //   chart.getDefaultAxisX().setTickStrategy(AxisTickStrategies.Empty)
     //   chart.getDefaultAxisX().setTitleFillStyle(emptyFillStyle)
     //
@@ -251,17 +252,16 @@ fetch('/api/mydata') // Fetch data from server endpoint
     const axisY = chart.getDefaultAxisY()
       ;
         
-        const text = chart.addUIElement(UIElementBuilders.TextBox, { x: axisX, y: axisY })
-        .setText(cluster_name)
-        .setTextFillStyle((style) => style
-        .setColor(ColorRGBA(0, 0, 0))
-    )
-        .setBackground(background => background
-          .setFillStyle(new SolidFill({ color: color }))
-          .setStrokeStyle(new SolidLine({ color: ColorRGBA(0, 0, 0) }))
-          
-        )
-        // NOTE: Axis coordinates!
+      const text = chart.addUIElement(UIElementBuilders.TextBox, { x: axisX, y: axisY })
+      .setText(cluster_name)
+      .setTextFillStyle((style) => style
+        .setColor(ColorRGBA(0, 0, 0)) // Set text color to black
+      )
+      .setBackground(background => background
+        .setFillStyle(new SolidFill({ color: color }))
+        .setStrokeStyle(new SolidLine({ color: ColorRGBA(0, 0, 0) }))
+      )
+            // NOTE: Axis coordinates!
         .setPosition({ x: clusters[i][1].x, y: clusters[i][1].y })
         // Stop user from moving the text
         .setMouseInteractions(false)
