@@ -1,6 +1,6 @@
 import express from "express";
-import {PORT, mongoDBURL} from "./config.js";
-import {MongoClient} from "mongodb";
+import { PORT, mongoDBURL } from "./config.js";
+import { MongoClient } from "mongodb";
 import path from "path";
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -11,76 +11,80 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
-app.set('view engine', 'ejs'); 
-
+app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
-// Serve static files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.use(express.urlencoded({ extended: true }));
 
 const client = new MongoClient(mongoDBURL);
 
+// Connect to MongoDB
+async function connectToMongoDB() {
+  try {
+    await client.connect();
+    console.log("Connected to MongoDB");
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error);
+  }
+}
+
+connectToMongoDB();
+
+// Function to get documents from MongoDB
+async function getDocumentsFromMongoDB() {
+  try {
+    const db = client.db("ArxivData");
+    const collection = db.collection("embeddings");
+    return await collection.find({}).toArray();
+  } catch (error) {
+    console.error("Error fetching documents from MongoDB:", error);
+    return [];
+  }
+}
+
+// Root route
 app.get("/", (req, res) => {
+  res.render('index', { text: 'John' });
+});
 
-    async function run() {
-      try {
-        await client.connect();
-        const db = client.db("ArxivData");
+// API route to get MongoDB data
+app.get('/api/mydata', async (req, res) => {
+  const docsList = await getDocumentsFromMongoDB();
+  res.json(docsList);
+});
 
+// POST route
+app.post('/', (req, res) => {
+  const queryParams = {
+    key1: req.body.textInput,
+  };
 
-    
-        const collection = db.collection("embeddings");
-    
-        var docs = collection.find({});
-        return docs.toArray();
-    
-      } 
-      finally {
-      }
+  const url = `http://localhost:5555/flask?key1=${queryParams.key1}`;
+
+  request(url, function (error, response, body) {
+    if (error) {
+      console.error("Error in request:", error);
+      return res.status(500).send("Error processing request");
     }
-    (async function() {
-        let docsList = await run();
-        app.get('/api/mydata', (req, res) => {
-          
-            res.json(docsList); // Send data as JSON
-          });
-    })();
-
-    return res.render('index', { text: 'John' }); 
+    
+    res.render("index", { text: body });
+  });
 });
 
-let data;
+// API route to get data from Flask
+app.get('/api/mydata2', (req, res) => {
+  const url = `http://localhost:5555/flask?key1=default`;
 
-app.post('/', function(req, res) {
-
-      const queryParams = {
-        key1: req.body.textInput,
-    };
-
-
-    // Construct the URL with query parameters
-    const url = `http://localhost:5555/flask?key1=${queryParams.key1}`;
-
-    request(url, function (error, response, body) {
-     data = body;
-      (async function() {
-          app.get('/api/mydata2', (req, res) => {
-            res.send(data); // Send data as JSON
-            
-          });
-          console.log(data);
-
-          return res.render("index", {text : data});
-    })();
-      });  
-
+  request(url, function (error, response, body) {
+    if (error) {
+      console.error("Error in request:", error);
+      return res.status(500).send("Error processing request");
+    }
+    
+    res.send(body);
+  });
 });
-
 
 app.listen(PORT, () => {
-    console.log(`App is listening to port: ${PORT}`)
-})
-
-
+  console.log(`App is listening to port: ${PORT}`);
+});
