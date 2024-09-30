@@ -2,76 +2,134 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arxiv Research Explorer</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
     <style>
-        #chartContainer {
-            padding-top: 30px;
-            width: 100%;
-            height: 600px;
+        body {
+            font-family: 'Poppins', sans-serif;
         }
-        div.a{
-            font-size: 60px;
-            text-align: center;
-            color : black;
+        .hide { position: absolute; top: -1px; left: -1px; width: 1px; height: 1px; }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
         }
-        .hide { position:absolute; top:-1px; left:-1px; width:1px; height:1px; }
-    /* CSS for textarea styling */
-    .textarea-container {
-            display: flex;
-            flex-direction: column;
-            max-width: 600px;
-            margin: 0 auto;
+        .animate-fadeInOut {
+            animation: fadeInOut 2s ease-in-out infinite;
         }
-
-        #myTextarea {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            resize: vertical;
-            margin-bottom: 10px;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-
-        #myTextarea::placeholder {
-            color: #999;
+        .animate-spin {
+            animation: spin 1s linear infinite;
         }
-
-        .btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-left : 70px;
+        .animate-scaleUp {
+            animation: scaleUp 0.5s ease-in-out forwards;
         }
-
-        .btn:hover {
-            background-color: #0056b3;
-        }
-    
-</style>
     </style>
 </head>
-<body style="background-color: white;">
-    <div class="a">Arxiv Research Explorer</div>
-    <iframe name="hiddenFrame" class="hide"></iframe>
-    <br><br>
-    <form action="/" method="POST">
-        <label for="textInput">Enter text:</label>
-        <textarea id="textInput" placeholder="What are you researching?" rows="6" cols="155" name="textInput"></textarea>
-        <br>
-        <button class="btn" type="submit">Send</button>
-       
-    </form>
-    <div id="chartContainer"></div>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-200 min-h-screen flex flex-col">
+    <header class="bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <h1 class="text-4xl font-extrabold text-center text-indigo-600">Arxiv Research Explorer</h1>
+            <p class="text-lg text-center text-gray-600 mt-2">Your gateway to the latest research insights</p>
+        </div>
+    </header>
+    
+    <main class="flex flex-col items-center mt-10 px-4 sm:px-6 lg:px-8 flex-grow animate-scaleUp">
+        <iframe name="hiddenFrame" class="hide"></iframe>
+
+        <!-- Home Screen -->
+        <div id="homeScreen" class="bg-white shadow-xl rounded-lg p-8 max-w-2xl w-full mb-12 transform hover:scale-105 transition-transform duration-300">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Welcome to Arxiv Research Explorer!</h2>
+            <p class="text-gray-700 mb-6 text-center">Explore the latest research papers and uncover valuable insights.</p>
+            <div class="flex justify-center">
+                <button id="getStartedButton" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center">
+                    <i class="fas fa-arrow-right mr-2"></i> Get Started
+                </button>
+            </div>
+        </div>
+
+        <!-- Research Explorer Form -->
+        <div id="explorerForm" class="hidden bg-white shadow-xl rounded-lg p-8 max-w-2xl w-full mb-12 transform hover:scale-105 transition-transform duration-300">
+            <form action="/" method="POST" class="space-y-6">
+                <div>
+                    <label for="textInput" class="block text-gray-700 text-lg font-semibold mb-2">What are you researching today?</label>
+                    <textarea id="textInput" placeholder="Enter your research query here..." rows="4" name="textInput" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-indigo-500 resize-none" required></textarea>
+                </div>
+                <div class="flex justify-end">
+                    <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center" type="submit">
+                        <i class="fas fa-search mr-2"></i> Explore
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div id="chartContainerOutside" class="hidden w-full max-w-6xl mt-6 bg-white shadow-lg rounded-lg p-6 transform hover:shadow-xl transition-shadow duration-300">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Research Insights</h2>
+            
+            <!-- Relative container to allow absolute positioning -->
+            <div class="relative bg-gray-200 h-96 rounded-lg overflow-hidden">
+                
+                <div id="overlay" class="absolute inset-0 flex items-center justify-center bg-opacity-50 text-white text-2xl" style="z-index: 10;">
+                    <div id="chart" style="width: 100%; height: 100%;"></div>
+                </div>
+                
+                <div id="chartContainer" class="h-full flex flex-col items-center justify-center text-gray-600">
+                    <div class="text-4xl mb-4">
+                        <i class="fas fa-cog animate-spin"></i>
+                    </div>
+                    <div id="loadingMessage" class="text-xl font-semibold animate-fadeInOut"></div>
+                </div>
+                
+            </div>
+        </div>
+        
+    </main>
+    
+    <footer class="mt-16 bg-white shadow-md py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-600">
+            <p>&copy; 2024 Arxiv Research Explorer. All rights reserved.</p>
+        </div>
+    </footer>
+
     <script src="/js/lcjs.iife.js"></script>
     <script src="/js/chart.js"></script>
+    <script>
+        const loadingMessages = [
+            "Getting things prepped for you...",
+            "Crunching the numbers...",
+            "Analyzing research patterns...",
+            "Connecting the dots...",
+            "Unearthing hidden insights...",
+            "Mapping the knowledge landscape...",
+            "Synthesizing information...",
+            "Discovering breakthrough connections..."
+        ];
 
-    
+        let currentMessageIndex = 0;
 
+        function updateLoadingMessage() {
+            const loadingMessageElement = document.getElementById('loadingMessage');
+            loadingMessageElement.textContent = loadingMessages[currentMessageIndex];
+            currentMessageIndex = (currentMessageIndex + 1) % loadingMessages.length;
+        }
+
+        // Update the message every 3 seconds
+        setInterval(updateLoadingMessage, 3000);
+
+        // Initial call to display the first message immediately
+        updateLoadingMessage();
+
+        // Get Started Button click event
+        document.getElementById('getStartedButton').addEventListener('click', function() {
+            document.getElementById('homeScreen').classList.add('hidden');
+            document.getElementById('explorerForm').classList.remove('hidden');
+            document.getElementById('chartContainerOutside').classList.remove('hidden');
+        });
+    </script>
 </body>
 </html>
