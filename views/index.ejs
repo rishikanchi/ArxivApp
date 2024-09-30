@@ -6,11 +6,7 @@
     <title>Arxiv Research Explorer</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
         .hide { position: absolute; top: -1px; left: -1px; width: 1px; height: 1px; }
         @keyframes fadeInOut {
             0%, 100% { opacity: 0; }
@@ -26,35 +22,19 @@
         .animate-spin {
             animation: spin 1s linear infinite;
         }
-        .animate-scaleUp {
-            animation: scaleUp 0.5s ease-in-out forwards;
-        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-200 min-h-screen flex flex-col">
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen font-sans">
     <header class="bg-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <h1 class="text-4xl font-extrabold text-center text-indigo-600">Arxiv Research Explorer</h1>
-            <p class="text-lg text-center text-gray-600 mt-2">Your gateway to the latest research insights</p>
         </div>
     </header>
     
-    <main class="flex flex-col items-center mt-10 px-4 sm:px-6 lg:px-8 flex-grow animate-scaleUp">
+    <main class="flex flex-col items-center mt-10 px-4 sm:px-6 lg:px-8">
         <iframe name="hiddenFrame" class="hide"></iframe>
-
-        <!-- Home Screen -->
-        <div id="homeScreen" class="bg-white shadow-xl rounded-lg p-8 max-w-2xl w-full mb-12 transform hover:scale-105 transition-transform duration-300">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Welcome to Arxiv Research Explorer!</h2>
-            <p class="text-gray-700 mb-6 text-center">Explore the latest research papers and uncover valuable insights.</p>
-            <div class="flex justify-center">
-                <button id="getStartedButton" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center">
-                    <i class="fas fa-arrow-right mr-2"></i> Get Started
-                </button>
-            </div>
-        </div>
-
-        <!-- Research Explorer Form -->
-        <div id="explorerForm" class="hidden bg-white shadow-xl rounded-lg p-8 max-w-2xl w-full mb-12 transform hover:scale-105 transition-transform duration-300">
+        
+        <div class="bg-white shadow-xl rounded-lg p-8 max-w-2xl w-full mb-12 transform hover:scale-105 transition-transform duration-300">
             <form action="/" method="POST" class="space-y-6">
                 <div>
                     <label for="textInput" class="block text-gray-700 text-lg font-semibold mb-2">What are you researching today?</label>
@@ -68,16 +48,18 @@
             </form>
         </div>
         
-        <div id="chartContainerOutside" class="hidden w-full max-w-6xl mt-6 bg-white shadow-lg rounded-lg p-6 transform hover:shadow-xl transition-shadow duration-300">
+        <div id="chartContainerOutside" class="w-full max-w-6xl mt-6 bg-white shadow-lg rounded-lg p-6 transform hover:shadow-xl transition-shadow duration-300">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Research Insights</h2>
             
             <!-- Relative container to allow absolute positioning -->
             <div class="relative bg-gray-200 h-96 rounded-lg overflow-hidden">
                 
                 <div id="overlay" class="absolute inset-0 flex items-center justify-center bg-opacity-50 text-white text-2xl" style="z-index: 10;">
+                    <!-- Place your chart here -->
                     <div id="chart" style="width: 100%; height: 100%;"></div>
                 </div>
                 
+                <!-- The original chartContainer div -->
                 <div id="chartContainer" class="h-full flex flex-col items-center justify-center text-gray-600">
                     <div class="text-4xl mb-4">
                         <i class="fas fa-cog animate-spin"></i>
@@ -123,13 +105,6 @@
 
         // Initial call to display the first message immediately
         updateLoadingMessage();
-
-        // Get Started Button click event
-        document.getElementById('getStartedButton').addEventListener('click', function() {
-            document.getElementById('homeScreen').classList.add('hidden');
-            document.getElementById('explorerForm').classList.remove('hidden');
-            document.getElementById('chartContainerOutside').classList.remove('hidden');
-        });
     </script>
 </body>
 </html>
