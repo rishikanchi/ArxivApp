@@ -1,7 +1,7 @@
 import pymongo
 import pandas as pd
 
-myclient = pymongo.MongoClient("mongodb+srv://admin:root@cluster0.zydvlq3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+myclient = pymongo.MongoClient("mongodb+srv://rishirkanchi:QxeAnSvizBC6VC1R@cluster0.cf3bg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 mydb = myclient["ArxivData"]
 mycol = mydb["embeddings"]
 
