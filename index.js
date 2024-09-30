@@ -18,29 +18,26 @@ app.use(express.urlencoded({ extended: true }));
 
 const client = new MongoClient(mongoDBURL);
 
-// Connect to MongoDB
-async function connectToMongoDB() {
+// Variable to store MongoDB data
+let mongoData = null;
+
+// Connect to MongoDB and fetch data
+async function connectToMongoDBAndFetchData() {
   try {
     await client.connect();
     console.log("Connected to MongoDB");
-  } catch (error) {
-    console.error("Error connecting to MongoDB:", error);
-  }
-}
-
-connectToMongoDB();
-
-// Function to get documents from MongoDB
-async function getDocumentsFromMongoDB() {
-  try {
+    
     const db = client.db("ArxivData");
     const collection = db.collection("embeddings");
-    return await collection.find({}).toArray();
+    mongoData = await collection.find({}).toArray();
+    console.log("Data fetched from MongoDB");
   } catch (error) {
-    console.error("Error fetching documents from MongoDB:", error);
-    return [];
+    console.error("Error connecting to MongoDB or fetching data:", error);
   }
 }
+
+// Call this function when the server starts
+connectToMongoDBAndFetchData();
 
 // Root route
 app.get("/", (req, res) => {
@@ -48,9 +45,12 @@ app.get("/", (req, res) => {
 });
 
 // API route to get MongoDB data
-app.get('/api/mydata', async (req, res) => {
-  const docsList = await getDocumentsFromMongoDB();
-  res.json(docsList);
+app.get('/api/mydata', (req, res) => {
+  if (mongoData) {
+    res.json(mongoData);
+  } else {
+    res.status(503).json({ error: "Data not yet loaded" });
+  }
 });
 
 // POST route
