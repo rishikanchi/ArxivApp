@@ -1,4 +1,3 @@
-
 const { lightningChart, UIDraggingModes, RadialGradientFill, LinearGradientFill, IndividualPointFill, ColorRGBA, UIElementBuilders, SolidLine, SolidFill, transparentFill, emptyFill, AxisTickStrategies, emptyFillStyle, emptyLine, UIOrigins, Themes} = lcjs;
 
 const colorMap = {
@@ -24,255 +23,238 @@ const colorMap = {
   "Statistics": ColorRGBA(245, 100, 110)
 };
 
-fetch('/api/mydata') // Fetch data from server endpoint
+fetch('/api/mydata')
   .then(response => {
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
-    return response.json(); // Parse response body as JSON
+    return response.json();
   })
   .then(data => {
     let newArray = data.map(obj => {
         const { _id, ...rest } = obj;
         return rest; 
-      });
-      console.log("once more");
+    });
 
     var data_points = Object.entries(data).slice(0,100000);
     var clusters = Object.entries(data).slice(100000, Object.keys(data).length);
     
-    
-    // var chart;
-
     const chart = lightningChart({
-      license: "0002-n96ucKX1C700BOZwz7IAGHHjEuT4KwDfrkmx7QCyIBztfxcK2B2YdzqRkuyh0bv4JWu/viN/aCm4HYmBbVnGHphV-MEUCIQCoAbM5nVG3lu6EAeoZcsrvewNpdn+DEGKL6UpNeDXEbAIgCV8gVBAZ3XKPAkbuQDarCfg/BnBK4sN+L00cqoYMu5E=",
-      licenseInformation: {
-          appTitle: "LightningChart JS Trial",
-          company: "LightningChart Ltd."
-      },
-  }).ChartXY({
-      container: 'chart',
-      theme: Themes.light
+        license: "0002-n96ucKX1C700BOZwz7IAGHHjEuT4KwDfrkmx7QCyIBztfxcK2B2YdzqRkuyh0bv4JWu/viN/aCm4HYmBbVnGHphV-MEUCIQCoAbM5nVG3lu6EAeoZcsrvewNpdn+DEGKL6UpNeDXEbAIgCV8gVBAZ3XKPAkbuQDarCfg/BnBK4sN+L00cqoYMu5E=",
+        licenseInformation: {
+            appTitle: "LightningChart JS Trial",
+            company: "LightningChart Ltd."
+        },
+    }).ChartXY({
+        container: 'chart',
+        theme: Themes.light
     }).setTitle('Web of Research')
     
     chart.setBackgroundFillStyle(new SolidFill({ color: ColorRGBA(255, 255, 255, 255) }))
     chart.setBackgroundStrokeStyle(emptyLine)
     
-    //   chart.getDefaultAxisX().setTickStrategy(AxisTickStrategies.Empty)
-    //   chart.getDefaultAxisX().setTitleFillStyle(emptyFillStyle)
-    //
-    //   chart.getDefaultAxisY().setTickStrategy(AxisTickStrategies.Empty)
-    //   chart.getDefaultAxisY().setTitleFillStyle(emptyFillStyle)
-
-    
-    // Remove the chart title
     chart.setTitle('')
     chart.pan({x: -700, y: 300})
-
     
-    
-        
-    fetch('/api/mydata2') // Fetch data from server endpoint
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json(); // Parse response body as JSON
-    })
-    .then(data => {
-      chart.getDefaultAxisX().zoom(0, -4.9)
-      chart.getDefaultAxisY().zoom(0, -4.9)
-      console.log(data);
+    const scatterSeries = chart.addPointSeries({colors : true})
+        .setPointSize(4) // Increased point size
 
-      function getIndexesOfNSmallestElements(arr, n) {
-        // Step 1: Create an array of objects with value and index
-        const indexedArray = arr.map((value, index) => ({ value, index }));
-      
-        // Step 2: Sort the array of objects based on the values
-        indexedArray.sort((a, b) => a.value - b.value);
-      
-        // Step 3: Extract the first n elements from the sorted array
-        const smallestElements = indexedArray.slice(0, n);
-      
-        // Step 4: Extract the indexes from these n elements
-        const indexes = smallestElements.map(element => element.index);
-      
-        return indexes;
-      }
-
-      function mode(array)
-          {
-              if(array.length == 0)
-                  return null;
-              var modeMap = {};
-              var maxEl = array[0], maxCount = 1;
-              for(var i = 0; i < array.length; i++)
-              {
-                  var el = array[i];
-                  if(modeMap[el] == null)
-                      modeMap[el] = 1;
-                  else
-                      modeMap[el]++;  
-                  if(modeMap[el] > maxCount)
-                  {
-                      maxEl = el;
-                      maxCount = modeMap[el];
-                  }
-              }
-              return maxEl;
-          }
-
-      var distances = [];
-      var categories = [];
-
-      data_points.forEach((datapoint) => {
-          point = datapoint[1];
-          distances.push(Math.pow((Math.pow(point.x - data.x, 2) + Math.pow(point.y - data.y, 2)), 0.5));
-          
-      })
-
-      var closest_points = getIndexesOfNSmallestElements(distances, 100);
-
-      closest_points.forEach((idx) => {
-        categories.push(data_points[idx][1].category);
-      })
-
-      targetX = data.x;
-      targetY = data.y;
-
-      const xAxis = chart.getDefaultAxisX();
-      const yAxis = chart.getDefaultAxisY();
-
-      // Get the current view ranges
-      const xMin = xAxis.getInterval().start;
-      const xMax = xAxis.getInterval().end;
-      const yMin = yAxis.getInterval().start;
-      const yMax = yAxis.getInterval().end;
-
-      // Calculate the current center
-      const currentXCenter = (xMin + xMax) / 2;
-      const currentYCenter = (yMin + yMax) / 2;
-
-      // Get the current view ranges
-      const xInterval = xAxis.getInterval();
-      const yInterval = yAxis.getInterval();
-
-      // Calculate the required delta to pan to the target coordinate
-      const deltaX = targetX - currentXCenter;
-      const deltaY = targetY - currentYCenter;
-
-      const chartRect = chart.engine.container.getBoundingClientRect();
-      const chartWidth = chartRect.width;
-      const chartHeight = chartRect.height;
-
-      // Convert the delta from data units to pixel values
-      const deltaXInPixels = (deltaX / (xInterval.end - xInterval.start)) * chartWidth;
-      const deltaYInPixels = (deltaY / (yInterval.end - yInterval.start)) * chartHeight;
-
-      const XInPixels = ((targetX-0.5) / (xInterval.end - xInterval.start)) * chartWidth;
-      const YInPixels = ((targetY-1.5) / (yInterval.end - yInterval.start)) * chartHeight;
-
-      console.log(deltaXInPixels, deltaYInPixels);
-
-      // Pan the chart
-      chart.pan({ x: deltaXInPixels * 0.948, y: deltaYInPixels * 0.92});
-      
-      
-      const lineSeries = chart.addLineSeries();
-
-      console.log(mode(categories))
-
-      lineSeries.setStrokeStyle(new SolidLine({
-        thickness: 0.5,
-        fillStyle: new SolidFill({ color: colorMap[mode(categories)] })
-
-
-      
-    })
-      )
-
-  //  const text = chart.addUIElement(UIElementBuilders.TextBox, { x: chart.getDefaultAxisX(), y: chart.getDefaultAxisY() })
-  //    .setDraggingMode(UIDraggingModes.notDraggable)
-  //    .setTextFont(f => f.setSize(30).setWeight(700).setStyle('normal'))
-  //    .setTextFillStyle(new RadialGradientFill())
-  //    .setBackground(b => b.setStrokeStyle(new SolidLine({
-  //      thickness: 2,
-  //      fillStyle: new LinearGradientFill()
-  //    })))
-  //    .setPosition({
-  //      x: parseFloat(data_points[closest_points[0]][1].x),
-  //      y: parseFloat(data_points[closest_points[0]][1].y),
-  //    })
-  //    .setText('Hello')
-      
-
-
-   closest_points.forEach((idx1) => {
-    var point1 = data_points[idx1][1];
-      lineSeries.add({x : point1.x, y : point1.y})
-    })
-
-    })
-
-    // Add a line series
- 
-
-    
-
-      const scatterSeries = chart.addPointSeries({colors : true})
-    .setPointSize(1.5);
-
-      
-
-      scatterSeries.setCursorResultTableFormatter((tableBuilder, series, x, y, dataPoint) => {
+    scatterSeries.setCursorResultTableFormatter((tableBuilder, series, x, y, dataPoint) => {
         return tableBuilder
             .addRow(dataPoint.value.description);
     })
 
-
     scatterSeries.setPointFillStyle(new IndividualPointFill());
-    // Add some data points
+
+    // Add paper details panel interaction
+    const paperDetails = document.querySelector('.paper-details');
+    const paperTitle = paperDetails.querySelector('.paper-title');
+    const paperCategory = paperDetails.querySelector('.paper-category');
+    const paperDescription = paperDetails.querySelector('.paper-description');
+    const paperLink = paperDetails.querySelector('.paper-link');
+
+    // Show paper details on click
+    chart.onSeriesBackgroundMouseClick((_, event) => {
+        const nearestDataPoint = scatterSeries.solveNearestFromScreen(
+            chart.engine.clientLocation2Engine(event.clientX, event.clientY)
+        ).location;
+
+        if (nearestDataPoint) {
+            // Show paper details panel
+            paperDetails.classList.add('active');
+            
+            // Update paper details
+            const titleText = nearestDataPoint.value.description.split('.')[0] + '.';
+            paperTitle.textContent = titleText;
+            paperCategory.textContent = nearestDataPoint.value.category;
+            paperDescription.textContent = nearestDataPoint.value.description;
+            paperLink.href = "https://" + nearestDataPoint.value.url.split("//")[1];
+            
+            // Update category color
+            const categoryColor = colorMap[nearestDataPoint.value.category];
+            if (categoryColor) {
+                paperCategory.style.backgroundColor = `rgba(${categoryColor.r}, ${categoryColor.g}, ${categoryColor.b}, 0.2)`;
+                paperCategory.style.color = `rgba(${categoryColor.r}, ${categoryColor.g}, ${categoryColor.b}, 1)`;
+            }
+        }
+    });
+
+    // Add data points
     data_points.forEach(point => {
         point = point[1];
-        const color = colorMap[point.category] || '#000000'; // Default to black if category not found
-        scatterSeries.add({ x: point.x, y: point.y, color : color, value : {"description" : point.description, "category" : point.category, "url" : point.url.substr(4, point.url.length)}});
-      });
+        const color = colorMap[point.category] || '#000000';
+        scatterSeries.add({ 
+            x: point.x, 
+            y: point.y, 
+            color: color, 
+            value: {
+                "description": point.description, 
+                "category": point.category, 
+                "url": point.url.substr(4, point.url.length)
+            }
+        });
+    });
 
-    chart.onSeriesBackgroundMouseDoubleClick((_, event) => {
-      const nearestDataPoint = scatterSeries.solveNearestFromScreen(chart.engine.clientLocation2Engine(event.clientX, event.clientY)).location;
-      window.open(nearestDataPoint.value.url, '_blank');
-   })
+    fetch('/api/mydata2')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            chart.getDefaultAxisX().zoom(0, -4.9)
+            chart.getDefaultAxisY().zoom(0, -4.9)
 
-  for (let i = 0; i < clusters.length; i++){
+            function getIndexesOfNSmallestElements(arr, n) {
+                const indexedArray = arr.map((value, index) => ({ value, index }));
+                indexedArray.sort((a, b) => a.value - b.value);
+                const smallestElements = indexedArray.slice(0, n);
+                const indexes = smallestElements.map(element => element.index);
+                return indexes;
+            }
 
-      var cluster_name = clusters[i][1].cluster_name;
-      var color = colorMap[cluster_name.substr(0, cluster_name.length - 2)];
-      color = color.setA(255);
+            function mode(array) {
+                if(array.length == 0) return null;
+                var modeMap = {};
+                var maxEl = array[0], maxCount = 1;
+                for(var i = 0; i < array.length; i++) {
+                    var el = array[i];
+                    if(modeMap[el] == null)
+                        modeMap[el] = 1;
+                    else
+                        modeMap[el]++;  
+                    if(modeMap[el] > maxCount) {
+                        maxEl = el;
+                        maxCount = modeMap[el];
+                    }
+                }
+                return maxEl;
+            }
 
+            var distances = [];
+            var categories = [];
 
-      const axisX = chart.getDefaultAxisX()
-      ;
-    const axisY = chart.getDefaultAxisY()
-      ;
+            data_points.forEach((datapoint) => {
+                point = datapoint[1];
+                distances.push(Math.pow((Math.pow(point.x - data.x, 2) + Math.pow(point.y - data.y, 2)), 0.5));
+            })
+
+            var closest_points = getIndexesOfNSmallestElements(distances, 100);
+
+            closest_points.forEach((idx) => {
+                categories.push(data_points[idx][1].category);
+            })
+
+            targetX = data.x;
+            targetY = data.y;
+
+            const xAxis = chart.getDefaultAxisX();
+            const yAxis = chart.getDefaultAxisY();
+
+            // Get the current view ranges
+            const xMin = xAxis.getInterval().start;
+            const xMax = xAxis.getInterval().end;
+            const yMin = yAxis.getInterval().start;
+            const yMax = yAxis.getInterval().end;
+
+            // Calculate the current center
+            const currentXCenter = (xMin + xMax) / 2;
+            const currentYCenter = (yMin + yMax) / 2;
+
+            // Get the current view ranges
+            const xInterval = xAxis.getInterval();
+            const yInterval = yAxis.getInterval();
+
+            // Calculate the required delta to pan to the target coordinate
+            const deltaX = targetX - currentXCenter;
+            const deltaY = targetY - currentYCenter;
+
+            const chartRect = chart.engine.container.getBoundingClientRect();
+            const chartWidth = chartRect.width;
+            const chartHeight = chartRect.height;
+
+            // Convert the delta from data units to pixel values
+            const deltaXInPixels = (deltaX / (xInterval.end - xInterval.start)) * chartWidth;
+            const deltaYInPixels = (deltaY / (yInterval.end - yInterval.start)) * chartHeight;
+
+            const XInPixels = ((targetX-0.5) / (xInterval.end - xInterval.start)) * chartWidth;
+            const YInPixels = ((targetY-1.5) / (yInterval.end - yInterval.start)) * chartHeight;
+
+            // Pan the chart
+            chart.pan({ x: deltaXInPixels * 0.948, y: deltaYInPixels * 0.92});
+            
+            const lineSeries = chart.addLineSeries();
+
+            const dominantCategory = mode(categories);
+
+            lineSeries.setStrokeStyle(new SolidLine({
+                thickness: 0.5,
+                fillStyle: new SolidFill({ color: colorMap[dominantCategory] })
+            }));
+
+            closest_points.forEach((idx1) => {
+                var point1 = data_points[idx1][1];
+                lineSeries.add({x : point1.x, y : point1.y});
+            });
+        });
+
+    // Add cluster labels
+    for (let i = 0; i < clusters.length; i++) {
+        var cluster_name = clusters[i][1].cluster_name;
+        var color = colorMap[cluster_name.substr(0, cluster_name.length - 2)];
+        color = color.setA(255);
+
+        const axisX = chart.getDefaultAxisX();
+        const axisY = chart.getDefaultAxisY();
+            
+        const text = chart.addUIElement(UIElementBuilders.TextBox, { x: axisX, y: axisY })
+            .setText(cluster_name)
+            .setTextFillStyle((style) => style
+                .setColor(ColorRGBA(0, 0, 0))
+            )
+            .setBackground(background => background
+                .setFillStyle(new SolidFill({ color: color }))
+                .setStrokeStyle(new SolidLine({ color: ColorRGBA(0, 0, 0) }))
+            )
+            .setPosition({ x: clusters[i][1].x, y: clusters[i][1].y })
+            .setMouseInteractions(false);
+    }
+
+    // Add click handler to close paper details when clicking outside
+    document.addEventListener('click', function(event) {
+        const isClickInsideChart = event.target.closest('#chart');
+        const isClickInsidePaperDetails = event.target.closest('.paper-details');
         
-      const text = chart.addUIElement(UIElementBuilders.TextBox, { x: axisX, y: axisY })
-      .setText(cluster_name)
-      .setTextFillStyle((style) => style
-        .setColor(ColorRGBA(0, 0, 0)) // Set text color to black
-      )
-      .setBackground(background => background
-        .setFillStyle(new SolidFill({ color: color }))
-        .setStrokeStyle(new SolidLine({ color: ColorRGBA(0, 0, 0) }))
-      )
-            // NOTE: Axis coordinates!
-        .setPosition({ x: clusters[i][1].x, y: clusters[i][1].y })
-        // Stop user from moving the text
-        .setMouseInteractions(false)
-  }
+        if (!isClickInsideChart && !isClickInsidePaperDetails) {
+            paperDetails.classList.remove('active');
+        }
+    });
 
-  
-
-      
-    })
-
-
+    // Add escape key handler to close paper details
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            paperDetails.classList.remove('active');
+        }
+    });
+});

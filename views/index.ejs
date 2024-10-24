@@ -65,6 +65,141 @@
         .hidden {
             display: none !important;
         }
+        .chart-container {
+            display: flex;
+            width: 100%;
+            max-width: 6xl;
+            margin-top: 1.5rem;
+            margin-bottom: 3rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateZ(0);
+            transition: box-shadow 0.3s;
+            height: 600px;
+        }
+        
+        .chart-container:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        #chart {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .paper-details {
+            width: 350px;
+            border-left: 1px solid #e5e7eb;
+            background: white;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: none;
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+        }
+        
+        .paper-details.active {
+            display: block;
+            transform: translateX(0);
+        }
+        
+        .paper-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        
+        .paper-category {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: #e5e7eb;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            color: #4b5563;
+            margin-bottom: 1rem;
+        }
+        
+        .paper-description {
+            color: #4b5563;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+        
+        .paper-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: #4f46e5;
+            color: white;
+            border-radius: 0.375rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        
+        .paper-link:hover {
+            background: #4338ca;
+        }
+        
+        .paper-link i {
+            margin-left: 0.5rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .saved-paper-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: transform 0.2s;
+        }
+
+        .saved-paper-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #4b5563;
+        }
+
+        .close-button:hover {
+            color: #1f2937;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 font-sans">
@@ -75,7 +210,6 @@
                     <h1 class="text-4xl font-extrabold text-indigo-600 cursor-pointer" onclick="showMainPage()">
                         Arxiv Research Explorer
                     </h1>
-                    <!-- Auth buttons container -->
                     <div id="authButtons" class="flex gap-4">
                         <button onclick="toggleLogin()" id="loginBtn" 
                                 class="bg-white hover:bg-gray-100 text-indigo-600 font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center gap-2 border-2 border-indigo-600">
@@ -88,7 +222,6 @@
                             Sign Up
                         </button>
                     </div>
-                    <!-- User menu container (hidden by default) -->
                     <div id="userMenu" class="flex gap-4 hidden">
                         <button onclick="showMyPapers()" 
                                 class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center gap-2">
@@ -110,12 +243,10 @@
             </div>
         </header>
 
-        <!-- Main Page Content -->
         <div id="mainContent" class="flex-1">
             <main class="flex flex-col items-center mt-10 px-4 sm:px-6 lg:px-8">
                 <iframe name="hiddenFrame" class="hide"></iframe>
                 
-                <!-- Login message for non-authenticated users -->
                 <div id="loginMessage" class="hidden bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-6 max-w-2xl w-full">
                     <div class="flex">
                         <div class="flex-shrink-0">
@@ -151,24 +282,27 @@
                     </form>
                 </div>
                 
-                <div id="chartContainerOutside" class="w-full max-w-6xl mt-6 mb-12 bg-white shadow-lg rounded-lg p-6 transform hover:shadow-xl transition-shadow duration-300">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Research Insights</h2>
-                    <div class="relative bg-gray-200 h-96 rounded-lg overflow-hidden">
-                        <div id="overlay" class="absolute inset-0 flex items-center justify-center bg-opacity-50 text-white text-2xl" style="z-index: 10;">
-                            <div id="chart" style="width: 100%; height: 100%;"></div>
-                        </div>
-                        <div id="chartContainer" class="h-full flex flex-col items-center justify-center text-gray-600">
-                            <div class="text-4xl mb-4">
-                                <i class="fas fa-cog animate-spin"></i>
-                            </div>
-                            <div id="loadingMessage" class="text-xl font-semibold animate-fadeInOut"></div>
+                <div class="chart-container">
+                    <div id="chart"></div>
+                    <div class="paper-details">
+                        <h3 class="paper-title">Select a paper to view details</h3>
+                        <span class="paper-category"></span>
+                        <p class="paper-description"></p>
+                        <div class="flex flex-col items-center space-y-4 w-full mt-6 mb-4">
+                            <a href="#" class="paper-link w-4/5 flex items-center justify-center" target="_blank">
+                                <span>View on arXiv</span>
+                                <i class="fas fa-external-link-alt ml-2"></i>
+                            </a>
+                            <button onclick="savePaper()" class="w-4/5 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center justify-center gap-2">
+                                <i class="fas fa-bookmark"></i>
+                                <span>Save</span>
+                            </button>
                         </div>
                     </div>
                 </div>
             </main>
         </div>
 
-        <!-- Sign Up Form -->
         <div id="signupContent" class="hidden signup-wrapper">
             <div class="bg-white shadow-xl rounded-lg p-8 max-w-md w-full transform hover:scale-105 transition-transform duration-300">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Create Your Account</h2>
@@ -223,7 +357,6 @@
             </div>
         </div>
 
-        <!-- Login Form -->
         <div id="loginContent" class="hidden signup-wrapper">
             <div class="bg-white shadow-xl rounded-lg p-8 max-w-md w-full transform hover:scale-105 transition-transform duration-300">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Login to Your Account</h2>
@@ -244,227 +377,392 @@
                         <div class="relative">
                             <i class="fas fa-lock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                             <input type="password" id="loginPassword" required
-                                class="w-full pl-10 pr-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-indigo-500"
-                                placeholder="••••••••">
-                        </div>
+                            class="w-full pl-10 pr-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-indigo-500"
+                            placeholder="••••••••">
                     </div>
+                </div>
 
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <input type="checkbox" id="remember" 
-                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                            <label for="remember" class="ml-2 block text-sm text-gray-700">
-                                Remember me
-                            </label>
-                        </div>
-                        <a href="#" class="text-sm text-indigo-600 hover:text-indigo-500">Forgot password?</a>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="remember" 
+                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="remember" class="ml-2 block text-sm text-gray-700">
+                            Remember me
+                        </label>
                     </div>
+                    <a href="#" class="text-sm text-indigo-600 hover:text-indigo-500">Forgot password?</a>
+                </div>
 
-                    <div class="pt-4">
-                        <button type="submit" 
-                                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center justify-center gap-2">
-                            <i class="fas fa-sign-in-alt"></i>
-                            Login
-                        </button>
-                    </div>
-                </form>
+                <div class="pt-4">
+                    <button type="submit" 
+                            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center justify-center gap-2">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Login
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="myPapersModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">My Saved Papers</h2>
+                <i class="fas fa-times close-button" onclick="closeMyPapers()"></i>
+            </div>
+            
+            <div id="savedPapersList">
+                <!-- Papers will be dynamically inserted here -->
             </div>
         </div>
     </div>
+</div>
 
-    <footer class="bg-white shadow-md py-6">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-600">
-            <p>&copy; 2024 Arxiv Research Explorer. All rights reserved.</p>
-        </div>
-    </footer>
+<footer class="bg-white shadow-md py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-600">
+        <p>&copy; 2024 Arxiv Research Explorer. All rights reserved.</p>
+    </div>
+</footer>
 
-    <script src="/js/lcjs.iife.js"></script>
-    <script src="/js/chart.js"></script>
-    <script>
-        // Loading messages rotation
-        const loadingMessages = [
-            "Getting things prepped for you...",
-            "Crunching the numbers...",
-            "Analyzing research patterns...",
-            "Connecting the dots...",
-            "Unearthing hidden insights...",
-            "Mapping the knowledge landscape...",
-            "Synthesizing information...",
-            "Discovering breakthrough connections..."
-        ];
+<script src="/js/lcjs.iife.js"></script>
+<script src="/js/chart.js"></script>
+<script>
+    // Initialize savedArr if it doesn't exist
+    let savedArr = [];
 
-        let currentMessageIndex = 0;
+    // Update the savePaper function to include the arXiv URL and clean the title
+    function savePaper() {
+        // Get the title and remove "Paper Title: " prefix if it exists
+        const fullTitle = document.querySelector('.paper-title').textContent;
+        const cleanTitle = fullTitle.replace(/^Paper Title:\s*/i, '');
+        
+        const category = document.querySelector('.paper-category').textContent;
+        const arxivUrl = document.querySelector('.paper-link').href;
+        
+        // Create paper object with cleaned title
+        const paper = {
+            title: cleanTitle,
+            category: category,
+            arxivUrl: arxivUrl,
+            savedAt: new Date().toISOString()
+        };
+        
+        // Check if paper is already saved (using cleaned title)
+        const isPaperSaved = savedArr.some(savedPaper => savedPaper.title === cleanTitle);
+        
+        if (!isPaperSaved) {
+            // Add to array
+            savedArr.push(paper);
+            
+            // Visual feedback
+            const saveButton = document.querySelector('.paper-details button');
+            const originalBg = saveButton.classList.contains('bg-green-600');
+            
+            // Change button appearance temporarily
+            if (originalBg) {
+                saveButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+                saveButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                saveButton.innerHTML = '<i class="fas fa-check"></i><span>Saved!</span>';
+                
+                // Revert after 2 seconds
+                setTimeout(() => {
+                    saveButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                    saveButton.classList.add('bg-green-600', 'hover:bg-green-700');
+                    saveButton.innerHTML = '<i class="fas fa-bookmark"></i><span>Save</span>';
+                }, 2000);
+            }
+            
+            console.log('Paper saved:', paper);
+            console.log('Current savedArr:', savedArr);
+        } else {
+            // Paper already saved - provide feedback
+            alert('This paper is already in your saved collection!');
+        }
+    }
 
-        function updateLoadingMessage() {
-            const loadingMessageElement = document.getElementById('loadingMessage');
+    // Add a function to clean title text
+    function cleanPaperTitle(title) {
+        return title.replace(/^Paper Title:\s*/i, '');
+    }
+
+    // Add a mutation observer to watch for changes in the paper details
+    function initializePaperDetailsObserver() {
+        const paperDetails = document.querySelector('.paper-details');
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.target.classList.contains('paper-title')) {
+                    const title = mutation.target.textContent;
+                    if (title.startsWith('Paper Title:')) {
+                        mutation.target.textContent = cleanPaperTitle(title);
+                    }
+                }
+            });
+        });
+        
+        observer.observe(paperDetails, {
+            subtree: true,
+            childList: true,
+            characterData: true
+        });
+    }
+
+    // Call the observer initialization when the document is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        initializePaperDetailsObserver();
+        checkAuthState();
+    });
+
+    // Update the showMyPapers function with the arXiv button
+    function showMyPapers() {
+        const modal = document.getElementById('myPapersModal');
+        const papersList = document.getElementById('savedPapersList');
+        
+        // Clear existing content
+        papersList.innerHTML = '';
+        
+        if (savedArr.length === 0) {
+            papersList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-book-open text-4xl mb-4"></i>
+                    <p class="text-lg">You haven't saved any papers yet.</p>
+                    <p class="text-sm mt-2">Papers you save will appear here.</p>
+                </div>
+            `;
+        } else {
+            // Sort papers by saved date, most recent first
+            const sortedPapers = [...savedArr].sort((a, b) => 
+                new Date(b.savedAt) - new Date(a.savedAt)
+            );
+            
+            sortedPapers.forEach(paper => {
+                const paperCard = document.createElement('div');
+                paperCard.className = 'saved-paper-card';
+                
+                const savedDate = new Date(paper.savedAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                
+                paperCard.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-grow">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">${paper.title}</h3>
+                            <span class="inline-block bg-gray-100 rounded-full px-3 py-1 text-sm text-gray-600">
+                                ${paper.category}
+                            </span>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <a href="${paper.arxivUrl}" target="_blank" 
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg transition-colors">
+                                <i class="fas fa-external-link-alt"></i>
+                                <span class="ml-1">arXiv</span>
+                            </a>
+                            <button onclick="removeSavedPaper('${paper.title}')" 
+                                    class="text-red-500 hover:text-red-700 transition-colors px-2">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-sm text-gray-500">
+                        Saved on ${savedDate}
+                    </div>
+                `;
+                
+                papersList.appendChild(paperCard);
+            });
+        }
+        
+        modal.style.display = 'block';
+    }
+
+    // Loading messages rotation
+    const loadingMessages = [
+        "Getting things prepped for you...",
+        "Crunching the numbers...",
+        "Analyzing research patterns...",
+        "Connecting the dots...",
+        "Unearthing hidden insights...",
+        "Mapping the knowledge landscape...",
+        "Synthesizing information...",
+        "Discovering breakthrough connections..."
+    ];
+
+    let currentMessageIndex = 0;
+
+    function updateLoadingMessage() {
+        const loadingMessageElement = document.getElementById('loadingMessage');
+        if (loadingMessageElement) {
             loadingMessageElement.textContent = loadingMessages[currentMessageIndex];
             currentMessageIndex = (currentMessageIndex + 1) % loadingMessages.length;
         }
+    }
 
-        setInterval(updateLoadingMessage, 3000);
-        updateLoadingMessage();
+    setInterval(updateLoadingMessage, 3000);
+    updateLoadingMessage();
 
-        // Check auth state on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            checkAuthState();
-        });
+    // Check auth state on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        checkAuthState();
+    });
 
-        // Function to check authentication state
-        function checkAuthState() {
-            const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-            const authButtons = document.getElementById('authButtons');
-            const userMenu = document.getElementById('userMenu');
-            const textInput = document.getElementById('textInput');
-            const loginMessage = document.getElementById('loginMessage');
-            
-            if (isAuthenticated) {
-                authButtons.classList.add('hidden');
-                userMenu.classList.remove('hidden');
-                textInput.disabled = false;
-                textInput.classList.remove('disabled-input');
-                loginMessage.classList.add('hidden');
-            } else {
-                authButtons.classList.remove('hidden');
-                userMenu.classList.add('hidden');
-                textInput.disabled = true;
-                textInput.classList.add('disabled-input');
-                loginMessage.classList.remove('hidden');
-            }
+    function checkAuthState() {
+        const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+        const authButtons = document.getElementById('authButtons');
+        const userMenu = document.getElementById('userMenu');
+        const textInput = document.getElementById('textInput');
+        const loginMessage = document.getElementById('loginMessage');
+        
+        if (isAuthenticated) {
+            authButtons.classList.add('hidden');
+            userMenu.classList.remove('hidden');
+            textInput.disabled = false;
+            textInput.classList.remove('disabled-input');
+            loginMessage.classList.add('hidden');
+        } else {
+            authButtons.classList.remove('hidden');
+            userMenu.classList.add('hidden');
+            textInput.disabled = true;
+            textInput.classList.add('disabled-input');
+            loginMessage.classList.remove('hidden');
         }
+    }
 
-        // Toggle functions for login and signup
-        function toggleLogin() {
-            const mainContent = document.getElementById('mainContent');
-            const loginContent = document.getElementById('loginContent');
-            const signupContent = document.getElementById('signupContent');
-            const loginBtn = document.getElementById('loginBtn');
-            const signupBtn = document.getElementById('signupBtn');
+    function toggleLogin() {
+        const mainContent = document.getElementById('mainContent');
+        const loginContent = document.getElementById('loginContent');
+        const signupContent = document.getElementById('signupContent');
+        const loginBtn = document.getElementById('loginBtn');
+        const signupBtn = document.getElementById('signupBtn');
 
-            if (loginContent.classList.contains('hidden')) {
-                mainContent.classList.add('hidden');
-                loginContent.classList.remove('hidden');
-                signupContent.classList.add('hidden');
-                document.body.style.overflow = 'hidden';
-                loginBtn.innerHTML = '<i class="fas fa-home"></i> Back to Home';
-                signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
-            } else {
-                mainContent.classList.remove('hidden');
-                loginContent.classList.add('hidden');
-                document.body.style.overflow = '';
-                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        }
-
-        function toggleSignup() {
-            const mainContent = document.getElementById('mainContent');
-            const signupContent = document.getElementById('signupContent');
-            const loginContent = document.getElementById('loginContent');
-            const signupBtn = document.getElementById('signupBtn');
-            const loginBtn = document.getElementById('loginBtn');
-
-            if (signupContent.classList.contains('hidden')) {
-                mainContent.classList.add('hidden');
-                signupContent.classList.remove('hidden');
-                loginContent.classList.add('hidden');
-                document.body.style.overflow = 'hidden';
-                signupBtn.innerHTML = '<i class="fas fa-home"></i> Back to Home';
-                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
-            } else {
-                mainContent.classList.remove('hidden');
-                signupContent.classList.add('hidden');
-                document.body.style.overflow = '';
-                signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        }
-
-        // Handle form submissions
-        const signupForm = document.getElementById('signupForm');
-        if (signupForm) {
-            signupForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                // Store user data
-                localStorage.setItem('isAuthenticated', 'true');
-                localStorage.setItem('userEmail', document.getElementById('email').value);
-                localStorage.setItem('userName', document.getElementById('fullName').value);
-                
-                // Reset form
-                signupForm.reset();
-                
-                // Update UI and show main page
-                checkAuthState();
-                showMainPage();
-            });
-        }
-
-        const loginForm = document.getElementById('loginForm');
-        if (loginForm) {
-            loginForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                // Store authentication state
-                localStorage.setItem('isAuthenticated', 'true');
-                localStorage.setItem('userEmail', document.getElementById('loginEmail').value);
-                localStorage.setItem('userName', 'User'); // Default name for logged-in users
-                
-                // Reset form
-                loginForm.reset();
-                
-                // Update UI and show main page
-                checkAuthState();
-                showMainPage();
-            });
-        }
-
-        // Logout handler
-        function handleLogout() {
-            localStorage.removeItem('isAuthenticated');
-            localStorage.removeItem('userEmail');
-            localStorage.removeItem('userName');
-            checkAuthState();
-            showMainPage();
-        }
-
-        // Function to show main page and reset forms
-        function showMainPage() {
-            const mainContent = document.getElementById('mainContent');
-            const signupContent = document.getElementById('signupContent');
-            const loginContent = document.getElementById('loginContent');
-            const signupBtn = document.getElementById('signupBtn');
-            const loginBtn = document.getElementById('loginBtn');
-            
-            mainContent.classList.remove('hidden');
+        if (loginContent.classList.contains('hidden')) {
+            mainContent.classList.add('hidden');
+            loginContent.classList.remove('hidden');
             signupContent.classList.add('hidden');
+            document.body.style.overflow = 'hidden';
+            loginBtn.innerHTML = '<i class="fas fa-home"></i> Back to Home';
+            signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+        } else {
+            mainContent.classList.remove('hidden');
             loginContent.classList.add('hidden');
             document.body.style.overflow = '';
-            signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
             loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+    }
 
-        // Placeholder functions for user menu
-        function showMyPapers() {
-            const userName = localStorage.getItem('userName');
-            alert(`Welcome ${userName}! My Papers feature coming soon.`);
-        }
+    function toggleSignup() {
+        const mainContent = document.getElementById('mainContent');
+        const signupContent = document.getElementById('signupContent');
+        const loginContent = document.getElementById('loginContent');
+        const signupBtn = document.getElementById('signupBtn');
+        const loginBtn = document.getElementById('loginBtn');
 
-        function showAccountSettings() {
-            const userEmail = localStorage.getItem('userEmail');
-            alert(`Account Settings for ${userEmail} - Feature coming soon!`);
+        if (signupContent.classList.contains('hidden')) {
+            mainContent.classList.add('hidden');
+            signupContent.classList.remove('hidden');
+            loginContent.classList.add('hidden');
+            document.body.style.overflow = 'hidden';
+            signupBtn.innerHTML = '<i class="fas fa-home"></i> Back to Home';
+            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+        } else {
+            mainContent.classList.remove('hidden');
+            signupContent.classList.add('hidden');
+            document.body.style.overflow = '';
+            signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+    }
 
-        // Research form submission handler
-        const researchForm = document.querySelector('form[action="/"]');
-        if (researchForm) {
-            researchForm.addEventListener('submit', function(e) {
-                const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-                if (!isAuthenticated) {
-                    e.preventDefault();
-                    alert('Please sign up or log in to submit research queries.');
-                    return false;
-                }
-            });
+    // Form handlers
+    const signupForm = document.getElementById('signupForm');
+    if (signupForm) {
+        signupForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            localStorage.setItem('isAuthenticated', 'true');
+            localStorage.setItem('userEmail', document.getElementById('email').value);
+            localStorage.setItem('userName', document.getElementById('fullName').value);
+            signupForm.reset();
+            checkAuthState();
+            showMainPage();
+        });
+    }
+
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            localStorage.setItem('isAuthenticated', 'true');
+            localStorage.setItem('userEmail', document.getElementById('loginEmail').value);
+            localStorage.setItem('userName', 'User');
+            loginForm.reset();
+            checkAuthState();
+            showMainPage();
+        });
+    }
+
+    function handleLogout() {
+        localStorage.removeItem('isAuthenticated');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('userName');
+        checkAuthState();
+        showMainPage();
+    }
+
+    function showMainPage() {
+        const mainContent = document.getElementById('mainContent');
+        const signupContent = document.getElementById('signupContent');
+        const loginContent = document.getElementById('loginContent');
+        const signupBtn = document.getElementById('signupBtn');
+        const loginBtn = document.getElementById('loginBtn');
+        
+        mainContent.classList.remove('hidden');
+        signupContent.classList.add('hidden');
+        loginContent.classList.add('hidden');
+        document.body.style.overflow = '';
+        signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showAccountSettings() {
+        const userEmail = localStorage.getItem('userEmail');
+        alert(`Account Settings for ${userEmail} - Feature coming soon!`);
+    }
+
+    // Research form submission handler
+    const researchForm = document.querySelector('form[action="/"]');
+    if (researchForm) {
+        researchForm.addEventListener('submit', function(e) {
+            const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+            if (!isAuthenticated) {
+                e.preventDefault();
+                alert('Please sign up or log in to submit research queries.');
+                return false;
+            }
+        });
+    }
+
+    // Function to remove a saved paper
+    function removeSavedPaper(title) {
+        if (confirm('Are you sure you want to remove this paper from your saved collection?')) {
+            savedArr = savedArr.filter(paper => paper.title !== title);
+            showMyPapers(); // Refresh the display
         }
-    </script>
+    }
+
+    // Function to close the modal
+    function closeMyPapers() {
+        const modal = document.getElementById('myPapersModal');
+        modal.style.display = 'none';
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('myPapersModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }    
+</script>
 </body>
 </html>
