@@ -200,9 +200,104 @@
             padding: 2rem;
             color: #6b7280;
         }
+
+        .arxiv-button {
+            min-width: 120px;
+            width: 120px;
+            text-align: center;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #e5e7eb;
+            border-top-color: #4f46e5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-message {
+            margin-top: 1rem;
+            color: #4b5563;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .loading-dots::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80%, 100% { content: ''; }
+        }
+
+        .button-loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .button-loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 font-sans">
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div id="loadingMessage" class="loading-message">
+                Processing your request<span class="loading-dots"></span>
+            </div>
+        </div>
+    </div>
+
     <div class="content-wrapper">
         <header class="bg-white shadow-md">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -274,7 +369,7 @@
                                     required></textarea>
                         </div>
                         <div class="flex justify-end">
-                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center">
+                            <button type="submit" id="searchButton" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center">
                                 <i class="fas fa-search mr-2"></i>
                                 Explore
                             </button>
@@ -350,7 +445,7 @@
                         <button type="submit" 
                                 class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center justify-center gap-2">
                             <i class="fas fa-user-plus"></i>
-                            Create Account
+                            <span>Create Account</span>
                         </button>
                     </div>
                 </form>
@@ -377,392 +472,406 @@
                         <div class="relative">
                             <i class="fas fa-lock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                             <input type="password" id="loginPassword" required
-                            class="w-full pl-10 pr-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-indigo-500"
-                            placeholder="••••••••">
+                                class="w-full pl-10 pr-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-indigo-500"
+                                placeholder="••••••••">
+                        </div>
                     </div>
-                </div>
 
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <input type="checkbox" id="remember" 
-                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                        <label for="remember" class="ml-2 block text-sm text-gray-700">
-                            Remember me
-                        </label>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="remember" 
+                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <label for="remember" class="ml-2 block text-sm text-gray-700">
+                                Remember me
+                            </label>
+                        </div>
+                        <a href="#" class="text-sm text-indigo-600 hover:text-indigo-500">Forgot password?</a>
                     </div>
-                    <a href="#" class="text-sm text-indigo-600 hover:text-indigo-500">Forgot password?</a>
-                </div>
 
-                <div class="pt-4">
-                    <button type="submit" 
-                            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center justify-center gap-2">
-                        <i class="fas fa-sign-in-alt"></i>
-                        Login
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div id="myPapersModal" class="modal">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800">My Saved Papers</h2>
-                <i class="fas fa-times close-button" onclick="closeMyPapers()"></i>
-            </div>
-            
-            <div id="savedPapersList">
-                <!-- Papers will be dynamically inserted here -->
+                    <div class="pt-4">
+                        <button type="submit" 
+                                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center justify-center gap-2">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span>Login</span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
+
+        <div id="myPapersModal" class="modal">
+            <div class="modal-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">My Saved Papers</h2>
+                    <i class="fas fa-times close-button" onclick="closeMyPapers()"></i>
+                </div>
+                
+                <div id="savedPapersList">
+                    <!-- Papers will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
     </div>
-</div>
 
-<footer class="bg-white shadow-md py-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-600">
-        <p>&copy; 2024 Arxiv Research Explorer. All rights reserved.</p>
-    </div>
-</footer>
+    <footer class="bg-white shadow-md py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-600">
+            <p>&copy; 2024 Arxiv Research Explorer. All rights reserved.</p>
+        </div>
+    </footer>
 
-<script src="/js/lcjs.iife.js"></script>
-<script src="/js/chart.js"></script>
-<script>
-    // Initialize savedArr if it doesn't exist
-    let savedArr = [];
+    <script src="/js/lcjs.iife.js"></script>
+    <script src="/js/chart.js"></script>
+    <script>
+        // Initialize savedArr if it doesn't exist
+        let savedArr = [];
 
-    // Update the savePaper function to include the arXiv URL and clean the title
-    function savePaper() {
-        // Get the title and remove "Paper Title: " prefix if it exists
-        const fullTitle = document.querySelector('.paper-title').textContent;
-        const cleanTitle = fullTitle.replace(/^Paper Title:\s*/i, '');
-        
-        const category = document.querySelector('.paper-category').textContent;
-        const arxivUrl = document.querySelector('.paper-link').href;
-        
-        // Create paper object with cleaned title
-        const paper = {
-            title: cleanTitle,
-            category: category,
-            arxivUrl: arxivUrl,
-            savedAt: new Date().toISOString()
+        // Loading messages only for auth flows
+        const loadingMessages = {
+            signup: [
+                "Creating your account...",
+                "Setting up your profile...",
+                "Almost there...",
+                "Finalizing setup..."
+            ],
+            login: [
+                "Verifying credentials...",
+                "Checking account status...",
+                "Almost there...",
+                "Logging you in..."
+            ]
         };
-        
-        // Check if paper is already saved (using cleaned title)
-        const isPaperSaved = savedArr.some(savedPaper => savedPaper.title === cleanTitle);
-        
-        if (!isPaperSaved) {
-            // Add to array
-            savedArr.push(paper);
+
+        function showLoading(type) {
+            const overlay = document.getElementById('loadingOverlay');
+            const messageElement = document.getElementById('loadingMessage');
+            let currentIndex = 0;
             
-            // Visual feedback
-            const saveButton = document.querySelector('.paper-details button');
-            const originalBg = saveButton.classList.contains('bg-green-600');
+            overlay.style.display = 'flex';
             
-            // Change button appearance temporarily
-            if (originalBg) {
+            const messageInterval = setInterval(() => {
+                messageElement.textContent = loadingMessages[type][currentIndex];
+                currentIndex = (currentIndex + 1) % loadingMessages[type].length;
+            }, 750);
+            
+            return {
+                hide: () => {
+                    clearInterval(messageInterval);
+                    overlay.style.display = 'none';
+                }
+            };
+        }
+
+        // Update savePaper function
+        function savePaper() {
+            const fullTitle = document.querySelector('.paper-title').textContent;
+            const cleanTitle = fullTitle.replace(/^Paper Title:\s*/i, '');
+            const category = document.querySelector('.paper-category').textContent;
+            const arxivUrl = document.querySelector('.paper-link').href;
+            
+            const paper = {
+                title: cleanTitle,
+                category: category,
+                arxivUrl: arxivUrl,
+                savedAt: new Date().toISOString()
+            };
+            
+            const isPaperSaved = savedArr.some(savedPaper => savedPaper.title === cleanTitle);
+            
+            if (!isPaperSaved) {
+                savedArr.push(paper);
+                
+                const saveButton = document.querySelector('.paper-details button');
                 saveButton.classList.remove('bg-green-600', 'hover:bg-green-700');
                 saveButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
                 saveButton.innerHTML = '<i class="fas fa-check"></i><span>Saved!</span>';
                 
-                // Revert after 2 seconds
                 setTimeout(() => {
                     saveButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
                     saveButton.classList.add('bg-green-600', 'hover:bg-green-700');
                     saveButton.innerHTML = '<i class="fas fa-bookmark"></i><span>Save</span>';
                 }, 2000);
+            } else {
+                alert('This paper is already in your saved collection!');
             }
-            
-            console.log('Paper saved:', paper);
-            console.log('Current savedArr:', savedArr);
-        } else {
-            // Paper already saved - provide feedback
-            alert('This paper is already in your saved collection!');
         }
-    }
 
-    // Add a function to clean title text
-    function cleanPaperTitle(title) {
-        return title.replace(/^Paper Title:\s*/i, '');
-    }
+        function updateButtonLoadingState(button, isLoading) {
+            if (!button) return;
+            
+            if (isLoading) {
+                button.disabled = true;
+                button.classList.add('button-loading');
+                const span = button.querySelector('span');
+                if (span) span.style.opacity = '0';
+            } else {
+                button.disabled = false;
+                button.classList.remove('button-loading');
+                const span = button.querySelector('span');
+                if (span) span.style.opacity = '1';
+            }
+        }
 
-    // Add a mutation observer to watch for changes in the paper details
-    function initializePaperDetailsObserver() {
-        const paperDetails = document.querySelector('.paper-details');
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.target.classList.contains('paper-title')) {
-                    const title = mutation.target.textContent;
-                    if (title.startsWith('Paper Title:')) {
-                        mutation.target.textContent = cleanPaperTitle(title);
-                    }
+        // Form handlers
+        const signupForm = document.getElementById('signupForm');
+        if (signupForm) {
+            signupForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const loading = showLoading('signup');
+                const submitButton = this.querySelector('button[type="submit"]');
+                updateButtonLoadingState(submitButton, true);
+                
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                
+                localStorage.setItem('isAuthenticated', 'true');
+                localStorage.setItem('userEmail', document.getElementById('email').value);
+                localStorage.setItem('userName', document.getElementById('fullName').value);
+                
+                loading.hide();
+                updateButtonLoadingState(submitButton, false);
+                signupForm.reset();
+                checkAuthState();
+                showMainPage();
+            });
+        }
+
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const loading = showLoading('login');
+                const submitButton = this.querySelector('button[type="submit"]');
+                updateButtonLoadingState(submitButton, true);
+                
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                
+                localStorage.setItem('isAuthenticated', 'true');
+                localStorage.setItem('userEmail', document.getElementById('loginEmail').value);
+                localStorage.setItem('userName', 'User');
+                
+                loading.hide();
+                updateButtonLoadingState(submitButton, false);
+                loginForm.reset();
+                checkAuthState();
+                showMainPage();
+            });
+        }
+
+        // Research form submission handler
+        const researchForm = document.querySelector('form[action="/"]');
+        if (researchForm) {
+            researchForm.addEventListener('submit', function(e) {
+                const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+                if (!isAuthenticated) {
+                    e.preventDefault();
+                    alert('Please sign up or log in to submit research queries.');
+                    return false;
                 }
             });
-        });
-        
-        observer.observe(paperDetails, {
-            subtree: true,
-            childList: true,
-            characterData: true
-        });
-    }
+        }
 
-    // Call the observer initialization when the document is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        initializePaperDetailsObserver();
-        checkAuthState();
-    });
-
-    // Update the showMyPapers function with the arXiv button
-    function showMyPapers() {
-        const modal = document.getElementById('myPapersModal');
-        const papersList = document.getElementById('savedPapersList');
-        
-        // Clear existing content
-        papersList.innerHTML = '';
-        
-        if (savedArr.length === 0) {
-            papersList.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-book-open text-4xl mb-4"></i>
-                    <p class="text-lg">You haven't saved any papers yet.</p>
-                    <p class="text-sm mt-2">Papers you save will appear here.</p>
-                </div>
-            `;
-        } else {
-            // Sort papers by saved date, most recent first
-            const sortedPapers = [...savedArr].sort((a, b) => 
-                new Date(b.savedAt) - new Date(a.savedAt)
-            );
+        function showMyPapers() {
+            const modal = document.getElementById('myPapersModal');
+            const papersList = document.getElementById('savedPapersList');
             
-            sortedPapers.forEach(paper => {
-                const paperCard = document.createElement('div');
-                paperCard.className = 'saved-paper-card';
-                
-                const savedDate = new Date(paper.savedAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                });
-                
-                paperCard.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div class="flex-grow">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">${paper.title}</h3>
-                            <span class="inline-block bg-gray-100 rounded-full px-3 py-1 text-sm text-gray-600">
-                                ${paper.category}
-                            </span>
-                        </div>
-                        <div class="flex items-start space-x-2">
-                            <a href="${paper.arxivUrl}" target="_blank" 
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg transition-colors">
-                                <i class="fas fa-external-link-alt"></i>
-                                <span class="ml-1">arXiv</span>
-                            </a>
-                            <button onclick="removeSavedPaper('${paper.title}')" 
-                                    class="text-red-500 hover:text-red-700 transition-colors px-2">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="mt-4 text-sm text-gray-500">
-                        Saved on ${savedDate}
+            papersList.innerHTML = '';
+            
+            if (savedArr.length === 0) {
+                papersList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-book-open text-4xl mb-4"></i>
+                        <p class="text-lg">You haven't saved any papers yet.</p>
+                        <p class="text-sm mt-2">Papers you save will appear here.</p>
                     </div>
                 `;
+            } else {
+                const sortedPapers = [...savedArr].sort((a, b) => 
+                    new Date(b.savedAt) - new Date(a.savedAt)
+                );
                 
-                papersList.appendChild(paperCard);
-            });
-        }
-        
-        modal.style.display = 'block';
-    }
-
-    // Loading messages rotation
-    const loadingMessages = [
-        "Getting things prepped for you...",
-        "Crunching the numbers...",
-        "Analyzing research patterns...",
-        "Connecting the dots...",
-        "Unearthing hidden insights...",
-        "Mapping the knowledge landscape...",
-        "Synthesizing information...",
-        "Discovering breakthrough connections..."
-    ];
-
-    let currentMessageIndex = 0;
-
-    function updateLoadingMessage() {
-        const loadingMessageElement = document.getElementById('loadingMessage');
-        if (loadingMessageElement) {
-            loadingMessageElement.textContent = loadingMessages[currentMessageIndex];
-            currentMessageIndex = (currentMessageIndex + 1) % loadingMessages.length;
-        }
-    }
-
-    setInterval(updateLoadingMessage, 3000);
-    updateLoadingMessage();
-
-    // Check auth state on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        checkAuthState();
-    });
-
-    function checkAuthState() {
-        const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-        const authButtons = document.getElementById('authButtons');
-        const userMenu = document.getElementById('userMenu');
-        const textInput = document.getElementById('textInput');
-        const loginMessage = document.getElementById('loginMessage');
-        
-        if (isAuthenticated) {
-            authButtons.classList.add('hidden');
-            userMenu.classList.remove('hidden');
-            textInput.disabled = false;
-            textInput.classList.remove('disabled-input');
-            loginMessage.classList.add('hidden');
-        } else {
-            authButtons.classList.remove('hidden');
-            userMenu.classList.add('hidden');
-            textInput.disabled = true;
-            textInput.classList.add('disabled-input');
-            loginMessage.classList.remove('hidden');
-        }
-    }
-
-    function toggleLogin() {
-        const mainContent = document.getElementById('mainContent');
-        const loginContent = document.getElementById('loginContent');
-        const signupContent = document.getElementById('signupContent');
-        const loginBtn = document.getElementById('loginBtn');
-        const signupBtn = document.getElementById('signupBtn');
-
-        if (loginContent.classList.contains('hidden')) {
-            mainContent.classList.add('hidden');
-            loginContent.classList.remove('hidden');
-            signupContent.classList.add('hidden');
-            document.body.style.overflow = 'hidden';
-            loginBtn.innerHTML = '<i class="fas fa-home"></i> Back to Home';
-            signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
-        } else {
-            mainContent.classList.remove('hidden');
-            loginContent.classList.add('hidden');
-            document.body.style.overflow = '';
-            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    }
-
-    function toggleSignup() {
-        const mainContent = document.getElementById('mainContent');
-        const signupContent = document.getElementById('signupContent');
-        const loginContent = document.getElementById('loginContent');
-        const signupBtn = document.getElementById('signupBtn');
-        const loginBtn = document.getElementById('loginBtn');
-
-        if (signupContent.classList.contains('hidden')) {
-            mainContent.classList.add('hidden');
-            signupContent.classList.remove('hidden');
-            loginContent.classList.add('hidden');
-            document.body.style.overflow = 'hidden';
-            signupBtn.innerHTML = '<i class="fas fa-home"></i> Back to Home';
-            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
-        } else {
-            mainContent.classList.remove('hidden');
-            signupContent.classList.add('hidden');
-            document.body.style.overflow = '';
-            signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    }
-
-    // Form handlers
-    const signupForm = document.getElementById('signupForm');
-    if (signupForm) {
-        signupForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            localStorage.setItem('isAuthenticated', 'true');
-            localStorage.setItem('userEmail', document.getElementById('email').value);
-            localStorage.setItem('userName', document.getElementById('fullName').value);
-            signupForm.reset();
-            checkAuthState();
-            showMainPage();
-        });
-    }
-
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            localStorage.setItem('isAuthenticated', 'true');
-            localStorage.setItem('userEmail', document.getElementById('loginEmail').value);
-            localStorage.setItem('userName', 'User');
-            loginForm.reset();
-            checkAuthState();
-            showMainPage();
-        });
-    }
-
-    function handleLogout() {
-        localStorage.removeItem('isAuthenticated');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userName');
-        checkAuthState();
-        showMainPage();
-    }
-
-    function showMainPage() {
-        const mainContent = document.getElementById('mainContent');
-        const signupContent = document.getElementById('signupContent');
-        const loginContent = document.getElementById('loginContent');
-        const signupBtn = document.getElementById('signupBtn');
-        const loginBtn = document.getElementById('loginBtn');
-        
-        mainContent.classList.remove('hidden');
-        signupContent.classList.add('hidden');
-        loginContent.classList.add('hidden');
-        document.body.style.overflow = '';
-        signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
-        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function showAccountSettings() {
-        const userEmail = localStorage.getItem('userEmail');
-        alert(`Account Settings for ${userEmail} - Feature coming soon!`);
-    }
-
-    // Research form submission handler
-    const researchForm = document.querySelector('form[action="/"]');
-    if (researchForm) {
-        researchForm.addEventListener('submit', function(e) {
-            const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-            if (!isAuthenticated) {
-                e.preventDefault();
-                alert('Please sign up or log in to submit research queries.');
-                return false;
+                sortedPapers.forEach(paper => {
+                    const paperCard = document.createElement('div');
+                    paperCard.className = 'saved-paper-card';
+                    
+                    const savedDate = new Date(paper.savedAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    
+                    paperCard.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div class="flex-grow pr-4">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">${paper.title}</h3>
+                                <span class="inline-block bg-gray-100 rounded-full px-3 py-1 text-sm text-gray-600">
+                                    ${paper.category}
+                                </span>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <a href="${paper.arxivUrl}" target="_blank" 
+                               class="arxiv-button bg-indigo-600 hover:bg-indigo-700 text-white py-1 rounded-lg transition-colors">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    <span class="ml-2">arXiv</span>
+                                </a>
+<button onclick="removeSavedPaper('${paper.title}')" 
+                                        class="text-red-500 hover:text-red-700 transition-colors px-2">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-sm text-gray-500">
+                            Saved on ${savedDate}
+                        </div>
+                    `;
+                    
+                    papersList.appendChild(paperCard);
+                });
             }
-        });
-    }
-
-    // Function to remove a saved paper
-    function removeSavedPaper(title) {
-        if (confirm('Are you sure you want to remove this paper from your saved collection?')) {
-            savedArr = savedArr.filter(paper => paper.title !== title);
-            showMyPapers(); // Refresh the display
+            
+            modal.style.display = 'block';
         }
-    }
 
-    // Function to close the modal
-    function closeMyPapers() {
-        const modal = document.getElementById('myPapersModal');
-        modal.style.display = 'none';
-    }
+        function removeSavedPaper(title) {
+            if (confirm('Are you sure you want to remove this paper from your saved collection?')) {
+                savedArr = savedArr.filter(paper => paper.title !== title);
+                showMyPapers(); // Refresh the display
+            }
+        }
 
-    // Close modal when clicking outside
-    window.onclick = function(event) {
-        const modal = document.getElementById('myPapersModal');
-        if (event.target === modal) {
+        function closeMyPapers() {
+            const modal = document.getElementById('myPapersModal');
             modal.style.display = 'none';
         }
-    }    
-</script>
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('myPapersModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function checkAuthState() {
+            const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+            const authButtons = document.getElementById('authButtons');
+            const userMenu = document.getElementById('userMenu');
+            const textInput = document.getElementById('textInput');
+            const loginMessage = document.getElementById('loginMessage');
+            
+            if (isAuthenticated) {
+                authButtons.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+                textInput.disabled = false;
+                textInput.classList.remove('disabled-input');
+                loginMessage.classList.add('hidden');
+            } else {
+                authButtons.classList.remove('hidden');
+                userMenu.classList.add('hidden');
+                textInput.disabled = true;
+                textInput.classList.add('disabled-input');
+                loginMessage.classList.remove('hidden');
+            }
+        }
+
+        function toggleSignup(fromLogin = false) {
+            const mainContent = document.getElementById('mainContent');
+            const signupContent = document.getElementById('signupContent');
+            const loginContent = document.getElementById('loginContent');
+            const signupBtn = document.getElementById('signupBtn');
+            const loginBtn = document.getElementById('loginBtn');
+
+            if (signupContent.classList.contains('hidden')) {
+                // Going to signup form
+                mainContent.classList.add('hidden');
+                signupContent.classList.remove('hidden');
+                loginContent.classList.add('hidden');
+                document.body.style.overflow = 'hidden';
+                signupBtn.innerHTML = '<i class="fas fa-home"></i> Back to Home';
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+            } else if (!fromLogin) {
+                // Going back to main page
+                mainContent.classList.remove('hidden');
+                signupContent.classList.add('hidden');
+                document.body.style.overflow = '';
+                signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function toggleLogin(fromSignup = false) {
+            const mainContent = document.getElementById('mainContent');
+            const loginContent = document.getElementById('loginContent');
+            const signupContent = document.getElementById('signupContent');
+            const loginBtn = document.getElementById('loginBtn');
+            const signupBtn = document.getElementById('signupBtn');
+
+            if (loginContent.classList.contains('hidden')) {
+                // Going to login form
+                mainContent.classList.add('hidden');
+                loginContent.classList.remove('hidden');
+                signupContent.classList.add('hidden');
+                document.body.style.overflow = 'hidden';
+                loginBtn.innerHTML = '<i class="fas fa-home"></i> Back to Home';
+                signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+            } else if (!fromSignup) {
+                // Going back to main page
+                mainContent.classList.remove('hidden');
+                loginContent.classList.add('hidden');
+                document.body.style.overflow = '';
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userName');
+            checkAuthState();
+            showMainPage();
+        }
+
+        function showMainPage() {
+            const mainContent = document.getElementById('mainContent');
+            const signupContent = document.getElementById('signupContent');
+            const loginContent = document.getElementById('loginContent');
+            const signupBtn = document.getElementById('signupBtn');
+            const loginBtn = document.getElementById('loginBtn');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            
+            // Hide loading overlay if it's visible
+            loadingOverlay.style.display = 'none';
+            
+            // Reset all content states
+            mainContent.classList.remove('hidden');
+            signupContent.classList.add('hidden');
+            loginContent.classList.add('hidden');
+            document.body.style.overflow = '';
+            
+            // Reset button states
+            signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+            
+            // Reset loading states on all submit buttons
+            const submitButtons = document.querySelectorAll('button[type="submit"]');
+            submitButtons.forEach(button => {
+                button.disabled = false;
+                button.classList.remove('button-loading');
+                const span = button.querySelector('span');
+                if (span) span.style.opacity = '1';
+            });
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showAccountSettings() {
+            const userEmail = localStorage.getItem('userEmail');
+            alert(`Account Settings for ${userEmail} - Feature coming soon!`);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthState();
+        });
+    </script>
 </body>
 </html>
