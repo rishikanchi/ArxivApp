@@ -7,7 +7,13 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-        .hide { position: absolute; top: -1px; left: -1px; width: 1px; height: 1px; }
+        .hide { 
+            position: absolute; 
+            top: -1px; 
+            left: -1px; 
+            width: 1px; 
+            height: 1px; 
+        }
         @keyframes fadeInOut {
             0%, 100% { opacity: 0; }
             50% { opacity: 1; }
@@ -22,57 +28,251 @@
         .animate-spin {
             animation: spin 1s linear infinite;
         }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .content-wrapper {
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+        .signup-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 50;
+            background: inherit;
+        }
+        footer {
+            flex-shrink: 0;
+        }
+        .disabled-input {
+            background-color: #f3f4f6;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen font-sans">
-    <header class="bg-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <h1 class="text-4xl font-extrabold text-center text-indigo-600">Arxiv Research Explorer</h1>
-        </div>
-    </header>
-    
-    <main class="flex flex-col items-center mt-10 px-4 sm:px-6 lg:px-8">
-        <iframe name="hiddenFrame" class="hide"></iframe>
-        
-        <div class="bg-white shadow-xl rounded-lg p-8 max-w-2xl w-full mb-12 transform hover:scale-105 transition-transform duration-300">
-            <form action="/" method="POST" class="space-y-6">
-                <div>
-                    <label for="textInput" class="block text-gray-700 text-lg font-semibold mb-2">What are you researching today?</label>
-                    <textarea id="textInput" placeholder="Enter your research query here..." rows="4" name="textInput" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-indigo-500 resize-none" required></textarea>
-                </div>
-                <div class="flex justify-end">
-                    <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center" type="submit">
-                        <i class="fas fa-search mr-2"></i> Explore
-                    </button>
-                </div>
-            </form>
-        </div>
-        
-        <div id="chartContainerOutside" class="w-full max-w-6xl mt-6 bg-white shadow-lg rounded-lg p-6 transform hover:shadow-xl transition-shadow duration-300">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Research Insights</h2>
-            
-            <!-- Relative container to allow absolute positioning -->
-            <div class="relative bg-gray-200 h-96 rounded-lg overflow-hidden">
-                
-                <div id="overlay" class="absolute inset-0 flex items-center justify-center bg-opacity-50 text-white text-2xl" style="z-index: 10;">
-                    <!-- Place your chart here -->
-                    <div id="chart" style="width: 100%; height: 100%;"></div>
-                </div>
-                
-                <!-- The original chartContainer div -->
-                <div id="chartContainer" class="h-full flex flex-col items-center justify-center text-gray-600">
-                    <div class="text-4xl mb-4">
-                        <i class="fas fa-cog animate-spin"></i>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 font-sans">
+    <div class="content-wrapper">
+        <header class="bg-white shadow-md">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-4xl font-extrabold text-indigo-600 cursor-pointer" onclick="showMainPage()">
+                        Arxiv Research Explorer
+                    </h1>
+                    <!-- Auth buttons container -->
+                    <div id="authButtons" class="flex gap-4">
+                        <button onclick="toggleLogin()" id="loginBtn" 
+                                class="bg-white hover:bg-gray-100 text-indigo-600 font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center gap-2 border-2 border-indigo-600">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Login
+                        </button>
+                        <button onclick="toggleSignup()" id="signupBtn" 
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center gap-2">
+                            <i class="fas fa-user-plus"></i>
+                            Sign Up
+                        </button>
                     </div>
-                    <div id="loadingMessage" class="text-xl font-semibold animate-fadeInOut"></div>
+                    <!-- User menu container (hidden by default) -->
+                    <div id="userMenu" class="flex gap-4 hidden">
+                        <button onclick="showMyPapers()" 
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center gap-2">
+                            <i class="fas fa-file-alt"></i>
+                            My Papers
+                        </button>
+                        <button onclick="showAccountSettings()" 
+                                class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center gap-2">
+                            <i class="fas fa-cog"></i>
+                            Account Settings
+                        </button>
+                        <button onclick="handleLogout()" 
+                                class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center gap-2">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Page Content -->
+        <div id="mainContent" class="flex-1">
+            <main class="flex flex-col items-center mt-10 px-4 sm:px-6 lg:px-8">
+                <iframe name="hiddenFrame" class="hide"></iframe>
+                
+                <!-- Login message for non-authenticated users -->
+                <div id="loginMessage" class="hidden bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-6 max-w-2xl w-full">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-yellow-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-700">
+                                Please sign up or log in to start exploring research papers.
+                            </p>
+                        </div>
+                    </div>
                 </div>
                 
+                <div class="bg-white shadow-xl rounded-lg p-8 max-w-2xl w-full mb-12 transform hover:scale-105 transition-transform duration-300">
+                    <form action="/" method="POST" class="space-y-6">
+                        <div>
+                            <label for="textInput" class="block text-gray-700 text-lg font-semibold mb-2">
+                                What are you researching today?
+                            </label>
+                            <textarea id="textInput" 
+                                    placeholder="Enter your research query here..." 
+                                    rows="4" 
+                                    name="textInput" 
+                                    class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-indigo-500 resize-none" 
+                                    required></textarea>
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center">
+                                <i class="fas fa-search mr-2"></i>
+                                Explore
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="chartContainerOutside" class="w-full max-w-6xl mt-6 mb-12 bg-white shadow-lg rounded-lg p-6 transform hover:shadow-xl transition-shadow duration-300">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Research Insights</h2>
+                    <div class="relative bg-gray-200 h-96 rounded-lg overflow-hidden">
+                        <div id="overlay" class="absolute inset-0 flex items-center justify-center bg-opacity-50 text-white text-2xl" style="z-index: 10;">
+                            <div id="chart" style="width: 100%; height: 100%;"></div>
+                        </div>
+                        <div id="chartContainer" class="h-full flex flex-col items-center justify-center text-gray-600">
+                            <div class="text-4xl mb-4">
+                                <i class="fas fa-cog animate-spin"></i>
+                            </div>
+                            <div id="loadingMessage" class="text-xl font-semibold animate-fadeInOut"></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Sign Up Form -->
+        <div id="signupContent" class="hidden signup-wrapper">
+            <div class="bg-white shadow-xl rounded-lg p-8 max-w-md w-full transform hover:scale-105 transition-transform duration-300">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Create Your Account</h2>
+                
+                <form id="signupForm" class="space-y-6">
+                    <div>
+                        <label for="fullName" class="block text-gray-700 text-sm font-semibold mb-2">Full Name</label>
+                        <div class="relative">
+                            <i class="fas fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" id="fullName" required
+                                class="w-full pl-10 pr-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-indigo-500"
+                                placeholder="John Doe">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-gray-700 text-sm font-semibold mb-2">Email Address</label>
+                        <div class="relative">
+                            <i class="fas fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="email" id="email" required
+                                class="w-full pl-10 pr-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-indigo-500"
+                                placeholder="john@example.com">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-gray-700 text-sm font-semibold mb-2">Password</label>
+                        <div class="relative">
+                            <i class="fas fa-lock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="password" id="password" required
+                                class="w-full pl-10 pr-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-indigo-500"
+                                placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center">
+                        <input type="checkbox" id="terms" required 
+                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="terms" class="ml-2 block text-sm text-gray-700">
+                            I agree to the <a href="#" class="text-indigo-600 hover:text-indigo-500">Terms and Conditions</a>
+                        </label>
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit" 
+                                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center justify-center gap-2">
+                            <i class="fas fa-user-plus"></i>
+                            Create Account
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-        
-    </main>
-    
-    <footer class="mt-16 bg-white shadow-md py-6">
+
+        <!-- Login Form -->
+        <div id="loginContent" class="hidden signup-wrapper">
+            <div class="bg-white shadow-xl rounded-lg p-8 max-w-md w-full transform hover:scale-105 transition-transform duration-300">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Login to Your Account</h2>
+                
+                <form id="loginForm" class="space-y-6">
+                    <div>
+                        <label for="loginEmail" class="block text-gray-700 text-sm font-semibold mb-2">Email Address</label>
+                        <div class="relative">
+                            <i class="fas fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="email" id="loginEmail" required
+                                class="w-full pl-10 pr-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-indigo-500"
+                                placeholder="john@example.com">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="loginPassword" class="block text-gray-700 text-sm font-semibold mb-2">Password</label>
+                        <div class="relative">
+                            <i class="fas fa-lock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="password" id="loginPassword" required
+                                class="w-full pl-10 pr-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-indigo-500"
+                                placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="remember" 
+                                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <label for="remember" class="ml-2 block text-sm text-gray-700">
+                                Remember me
+                            </label>
+                        </div>
+                        <a href="#" class="text-sm text-indigo-600 hover:text-indigo-500">Forgot password?</a>
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit" 
+                                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center justify-center gap-2">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Login
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-white shadow-md py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-600">
             <p>&copy; 2024 Arxiv Research Explorer. All rights reserved.</p>
         </div>
@@ -81,6 +281,7 @@
     <script src="/js/lcjs.iife.js"></script>
     <script src="/js/chart.js"></script>
     <script>
+        // Loading messages rotation
         const loadingMessages = [
             "Getting things prepped for you...",
             "Crunching the numbers...",
@@ -100,11 +301,170 @@
             currentMessageIndex = (currentMessageIndex + 1) % loadingMessages.length;
         }
 
-        // Update the message every 3 seconds
         setInterval(updateLoadingMessage, 3000);
-
-        // Initial call to display the first message immediately
         updateLoadingMessage();
+
+        // Check auth state on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthState();
+        });
+
+        // Function to check authentication state
+        function checkAuthState() {
+            const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+            const authButtons = document.getElementById('authButtons');
+            const userMenu = document.getElementById('userMenu');
+            const textInput = document.getElementById('textInput');
+            const loginMessage = document.getElementById('loginMessage');
+            
+            if (isAuthenticated) {
+                authButtons.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+                textInput.disabled = false;
+                textInput.classList.remove('disabled-input');
+                loginMessage.classList.add('hidden');
+            } else {
+                authButtons.classList.remove('hidden');
+                userMenu.classList.add('hidden');
+                textInput.disabled = true;
+                textInput.classList.add('disabled-input');
+                loginMessage.classList.remove('hidden');
+            }
+        }
+
+        // Toggle functions for login and signup
+        function toggleLogin() {
+            const mainContent = document.getElementById('mainContent');
+            const loginContent = document.getElementById('loginContent');
+            const signupContent = document.getElementById('signupContent');
+            const loginBtn = document.getElementById('loginBtn');
+            const signupBtn = document.getElementById('signupBtn');
+
+            if (loginContent.classList.contains('hidden')) {
+                mainContent.classList.add('hidden');
+                loginContent.classList.remove('hidden');
+                signupContent.classList.add('hidden');
+                document.body.style.overflow = 'hidden';
+                loginBtn.innerHTML = '<i class="fas fa-home"></i> Back to Home';
+                signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+            } else {
+                mainContent.classList.remove('hidden');
+                loginContent.classList.add('hidden');
+                document.body.style.overflow = '';
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function toggleSignup() {
+            const mainContent = document.getElementById('mainContent');
+            const signupContent = document.getElementById('signupContent');
+            const loginContent = document.getElementById('loginContent');
+            const signupBtn = document.getElementById('signupBtn');
+            const loginBtn = document.getElementById('loginBtn');
+
+            if (signupContent.classList.contains('hidden')) {
+                mainContent.classList.add('hidden');
+                signupContent.classList.remove('hidden');
+                loginContent.classList.add('hidden');
+                document.body.style.overflow = 'hidden';
+                signupBtn.innerHTML = '<i class="fas fa-home"></i> Back to Home';
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+            } else {
+                mainContent.classList.remove('hidden');
+                signupContent.classList.add('hidden');
+                document.body.style.overflow = '';
+                signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Handle form submissions
+        const signupForm = document.getElementById('signupForm');
+        if (signupForm) {
+            signupForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Store user data
+                localStorage.setItem('isAuthenticated', 'true');
+                localStorage.setItem('userEmail', document.getElementById('email').value);
+                localStorage.setItem('userName', document.getElementById('fullName').value);
+                
+                // Reset form
+                signupForm.reset();
+                
+                // Update UI and show main page
+                checkAuthState();
+                showMainPage();
+            });
+        }
+
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Store authentication state
+                localStorage.setItem('isAuthenticated', 'true');
+                localStorage.setItem('userEmail', document.getElementById('loginEmail').value);
+                localStorage.setItem('userName', 'User'); // Default name for logged-in users
+                
+                // Reset form
+                loginForm.reset();
+                
+                // Update UI and show main page
+                checkAuthState();
+                showMainPage();
+            });
+        }
+
+        // Logout handler
+        function handleLogout() {
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userName');
+            checkAuthState();
+            showMainPage();
+        }
+
+        // Function to show main page and reset forms
+        function showMainPage() {
+            const mainContent = document.getElementById('mainContent');
+            const signupContent = document.getElementById('signupContent');
+            const loginContent = document.getElementById('loginContent');
+            const signupBtn = document.getElementById('signupBtn');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            mainContent.classList.remove('hidden');
+            signupContent.classList.add('hidden');
+            loginContent.classList.add('hidden');
+            document.body.style.overflow = '';
+            signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Placeholder functions for user menu
+        function showMyPapers() {
+            const userName = localStorage.getItem('userName');
+            alert(`Welcome ${userName}! My Papers feature coming soon.`);
+        }
+
+        function showAccountSettings() {
+            const userEmail = localStorage.getItem('userEmail');
+            alert(`Account Settings for ${userEmail} - Feature coming soon!`);
+        }
+
+        // Research form submission handler
+        const researchForm = document.querySelector('form[action="/"]');
+        if (researchForm) {
+            researchForm.addEventListener('submit', function(e) {
+                const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+                if (!isAuthenticated) {
+                    e.preventDefault();
+                    alert('Please sign up or log in to submit research queries.');
+                    return false;
+                }
+            });
+        }
     </script>
 </body>
 </html>
