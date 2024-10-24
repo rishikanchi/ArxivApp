@@ -378,7 +378,23 @@
                 </div>
                 
                 <div class="chart-container">
-                    <div id="chart"></div>
+
+                    <div class="chart-container overflow-hidden">
+                        <div id="overlay" class="absolute inset-0 flex items-center justify-center bg-opacity-50 text-white text-2xl" style="z-index: 10;">
+                            <div id="chart" style="width: 100%; height: 100%;"></div>
+                        </div>
+                        <div id="chartContainer" class="chart-container items-center justify-center text-gray-600">
+                            <div class="flex flex-col items-center">
+                                <div class="text-5xl mb-2"> <!-- Reduced margin from mb-4 to mb-2 -->
+                                    <i class="fas fa-cog animate-spin"></i>
+                                </div>
+                                <div id="researchLoadingMessage" class="text-2xl font-semibold animate-fadeInOut"></div>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                    
                     <div class="paper-details">
                         <h3 class="paper-title">Select a paper to view details</h3>
                         <span class="paper-category"></span>
@@ -540,6 +556,30 @@
                 "Logging you in..."
             ]
         };
+
+        // Loading messages rotation
+        const researchLoadingMessages = [
+            "Getting things prepped for you...",
+            "Crunching the numbers...",
+            "Analyzing research patterns...",
+            "Connecting the dots...",
+            "Unearthing hidden insights...",
+            "Mapping the knowledge landscape...",
+            "Synthesizing information...",
+            "Discovering breakthrough connections..."
+        ];
+
+        let currentMessageIndex = 0;
+
+        function updateResearchLoadingMessage() {
+            const researchLoadingMessageElement = document.getElementById('researchLoadingMessage');
+            researchLoadingMessageElement.textContent = researchLoadingMessages[currentMessageIndex];
+            currentMessageIndex = (currentMessageIndex + 1) % researchLoadingMessages.length;
+        }
+
+        setInterval(updateResearchLoadingMessage, 3000);
+        updateResearchLoadingMessage();
+
 
         function showLoading(type) {
             const overlay = document.getElementById('loadingOverlay');

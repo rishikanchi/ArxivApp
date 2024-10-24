@@ -23,6 +23,30 @@ const colorMap = {
   "Statistics": ColorRGBA(245, 100, 110)
 };
 
+
+
+async function fetchGPTResponse(paperTitle) {
+  const url = `https://free-chatgpt-api.p.rapidapi.com/chatask?prompt=Create%20a%20possible%20100-word%20abstract%20for%20a%20research%20paper%20given%20a%20paper%20title.%20I%20just%20want%20basic%20text%2C%20do%20not%20add%20anything%20else.%20Here%20is%20the%20${encodeURIComponent(paperTitle)}`;
+  console.log(url);
+
+  const options = {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': 'f1bc9ba595msh1d207e7406e9a7ap101e7cjsna32e09462bdd',
+        'x-rapidapi-host': 'free-chatgpt-api.p.rapidapi.com'
+      }
+  };
+
+  try {
+      const response = await fetch(url, options);
+      const result = await response.text();
+      return result;  // Assuming the response is a simple text
+  } catch (error) {
+      console.error('Error fetching GPT response:', error);
+      return 'Unable to fetch description.';
+  }
+}
+
 fetch('/api/mydata')
   .then(response => {
     if (!response.ok) {
@@ -80,23 +104,38 @@ fetch('/api/mydata')
         ).location;
 
         if (nearestDataPoint) {
-            // Show paper details panel
-            paperDetails.classList.add('active');
-            
-            // Update paper details
-            const titleText = nearestDataPoint.value.description.split('.')[0] + '.';
-            paperTitle.textContent = titleText;
-            paperCategory.textContent = nearestDataPoint.value.category;
-            paperDescription.textContent = nearestDataPoint.value.description;
-            paperLink.href = "https://" + nearestDataPoint.value.url.split("//")[1];
-            
-            // Update category color
-            const categoryColor = colorMap[nearestDataPoint.value.category];
-            if (categoryColor) {
-                paperCategory.style.backgroundColor = `rgba(${categoryColor.r}, ${categoryColor.g}, ${categoryColor.b}, 0.2)`;
-                paperCategory.style.color = `rgba(${categoryColor.r}, ${categoryColor.g}, ${categoryColor.b}, 1)`;
-            }
-        }
+          // Show paper details panel
+          paperDetails.classList.add('active');
+      
+          // Update paper details
+          const titleText = nearestDataPoint.value.description.split('.')[0] + '.';
+          paperTitle.textContent = titleText;
+          paperCategory.textContent = nearestDataPoint.value.category;
+      
+          // Initially set the description to loading message
+          paperDescription.textContent = 'Loading AI analysis of paper abstract...';
+      
+          // Fetch and update the paper description using GPT
+          // Fetch and update the paper description using GPT
+          fetchGPTResponse(titleText).then(gptResponse => {
+            // Parse the response and extract the 'response' field
+              const parsedResponse = JSON.parse(gptResponse);
+              paperDescription.textContent = parsedResponse.response || 'No description available.'; // Display the GPT response
+          }).catch(error => {
+              paperDescription.textContent = 'Unable to fetch description.'; // Handle error
+          });
+
+          // Update the link
+          paperLink.href = "https://" + nearestDataPoint.value.url.split("//")[1];
+
+          // Update category color
+          const categoryColor = colorMap[nearestDataPoint.value.category];
+          if (categoryColor) {
+              paperCategory.style.backgroundColor = `rgba(${categoryColor.r}, ${categoryColor.g}, ${categoryColor.b}, 0.2)`;
+              paperCategory.style.color = `rgba(${categoryColor.r}, ${categoryColor.g}, ${categoryColor.b}, 1)`;
+          }
+      }
+      
     });
 
     // Add data points
