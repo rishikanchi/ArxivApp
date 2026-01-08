@@ -347,7 +347,7 @@ Distributed under the ISC License. See `LICENSE` for more information.
 
 ## Contact
 
-Rishi Kanchi - [@rishikanchi](https://twitter.com/rishikanchi) - rishikanchi@example.com
+Rishi Kanchi - me [at] rishikanchi [dot] com
 
 Project Link: [https://github.com/rishikanchi/ArxivApp](https://github.com/rishikanchi/ArxivApp)
 
