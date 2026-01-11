@@ -348,8 +348,11 @@ Distributed under the ISC License. See `LICENSE` for more information.
 ## Contact
 
 Rishi Kanchi - me [at] rishikanchi [dot] com
-Jason Zhou
+
 Ryan Barretto
+
+Jason Zhou
+
 Project Link: [https://github.com/rishikanchi/ArxivApp](https://github.com/rishikanchi/ArxivApp)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
